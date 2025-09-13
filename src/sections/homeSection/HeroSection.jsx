@@ -154,7 +154,7 @@ const HeroSection = memo(() => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.5 }}
-              src="/images/Gemini_Generated_Image_bzik00bzik00bzik-removebg-preview.png"
+              src="/images/hero1.png"
               alt="Dashboard Preview"
               className="relative z-10 drop-shadow-2xl rounded-2xl"
             />
