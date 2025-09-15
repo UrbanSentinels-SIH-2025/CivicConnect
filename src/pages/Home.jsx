@@ -6,11 +6,10 @@ import WorkFlowSection from "../sections/homeSection/WorkFLowSection";
 const Home = () => {
   return (
     <div>
-         
-  <HeroSection/>
-        <ExecutiveSummary /> 
-     <RoleDashboards />
-<WorkFlowSection/>
+      <HeroSection />
+      <ExecutiveSummary />
+      <RoleDashboards />
+      <WorkFlowSection />
     </div>
   );
 };
