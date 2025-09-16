@@ -7,37 +7,33 @@ import { TbLayoutSidebarRightCollapse } from "react-icons/tb";
 import { FaCity } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-const Topbar = ({ onMenuClick, isSidebarOpen }) => {
-  const [notificationCount, setNotificationCount] = useState(3);
+
+const AdminTopbar = ({ onMenuClick, isSidebarOpen }) => {
+  const [notificationCount, setNotificationCount] = useState(7);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
 
-const handleLogout = async () => {
-  setIsLoggingOut(true);
-  try {
-    // Call the backend logout endpoint via axios instance
-    const response = await api.get("/auth/logout", {
-      withCredentials: true, // ensures cookies are sent
-    });
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      // Call the backend logout endpoint via axios instance
+      const response = await api.get("/auth/logout", {
+        withCredentials: true, // ensures cookies are sent
+      });
 
-    console.log(response.data?.message || "Logged out successfully");
+      console.log(response.data?.message || "Logged out successfully");
 
-
-    // Redirect to login page
-    navigate("/");
-  } catch (error) {
-    console.error("Logout error:", error.response?.data || error.message);
-
-    navigate("/");
-  } finally {
-    setIsLoggingOut(false);
-    setShowLogoutConfirm(false);
-  }
-};
-
-
-
+      // Redirect to login page
+      navigate("/admin/login");
+    } catch (error) {
+      console.error("Logout error:", error.response?.data || error.message);
+      navigate("/admin/login");
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutConfirm(false);
+    }
+  };
 
   return (
     <header className="w-full fixed h-16 z-1000 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm py-9">
@@ -46,12 +42,12 @@ const handleLogout = async () => {
       <div className="flex items-center gap-4">
         {/* Hamburger Menu */}
         <button
-          className="group relative hidden md:block text-gray-600 hover:text-blue-600 transition p-2 rounded-lg hover:bg-blue-50"
+          className="group relative hidden md:block text-gray-600 hover:text-blue-600 transition p-2 rounded-lg hover:bg-gray-100"
           onClick={onMenuClick}   
         >
           {isSidebarOpen ? <TbLayoutSidebarLeftCollapse className="text-2xl" /> : <TbLayoutSidebarRightCollapse className="text-2xl" />}
           
-          <div className="absolute inset-0 bg-blue-500/20 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
+          <div className="absolute inset-0 bg-gray-200 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
         </button>
 
         {/* Logo and Title */}
@@ -60,50 +56,58 @@ const handleLogout = async () => {
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.3 }}
-            className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-lg"
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg flex items-center justify-center shadow-sm border border-gray-100"
           >
-            <FaCity className="text-white text-lg sm:text-xl" />
+            <FaCity className="text-blue-600 text-lg sm:text-xl" />
           </motion.div>
           <h1 className="text-lg sm:text-xl font-bold text-gray-800">
             <span className="hidden md:inline">CivicConnect </span>
-            Citizen Dashboard
+            Admin Portal
           </h1>
         </div>
       </div>
 
       {/* Right side: Controls */}
       <div className="flex items-center gap-4 sm:gap-6">
+        
+
         {/* Notification Bell */}
         <div className="relative group">
           <button
             onClick={() => setNotificationCount(Math.max(0, notificationCount - 1))}
-            className="relative text-gray-500 hover:text-blue-500 p-2 rounded-lg transition hover:bg-blue-50"
+            className="relative text-gray-600 hover:text-blue-600 p-2 rounded-lg transition hover:bg-gray-100"
           >
             <FaBell className="text-xl group-hover:animate-pulse" />
-            <div className="absolute inset-0 bg-blue-400/20 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
+            <div className="absolute inset-0 bg-gray-200 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
           </button>
           {notificationCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-medium shadow">
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-medium shadow">
               {notificationCount}
             </span>
           )}
+        </div>
+
+        {/* Admin Profile */}
+        <div className="hidden md:flex items-center gap-2 text-gray-600 hover:text-blue-600 cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition">
+          <FaUserCircle className="text-xl" />
+          <span className="text-sm font-medium">Admin User</span>
         </div>
 
         {/* Logout Button */}
         <div className="relative group">
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="relative text-gray-500 hover:text-red-500 p-2 rounded-lg transition hover:bg-red-50"
+            className="relative text-gray-600 hover:text-red-500 p-2 rounded-lg transition hover:bg-gray-100"
             disabled={isLoggingOut}
           >
             <FaSignOutAlt className="text-xl" />
-            <div className="absolute inset-0 bg-red-400/20 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
+            <div className="absolute inset-0 bg-gray-200 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
           </button>
           
           {/* Logout Confirmation Dialog */}
           {showLogoutConfirm && (
             <div className="absolute right-0 top-12 bg-white p-4 rounded-lg shadow-lg border border-gray-200 z-10 w-48">
-              <p className="text-sm text-gray-700 mb-3">Are you sure you want to logout?</p>
+              <p className="text-sm text-gray-700 mb-3">Confirm admin logout?</p>
               <div className="flex justify-between">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
@@ -127,17 +131,15 @@ const handleLogout = async () => {
             </div>
           )}
         </div>
-
-        
         
         {/* Mobile menu button */}
         <button
-          className="group relative block md:hidden text-gray-600 hover:text-blue-600 transition p-2 rounded-lg hover:bg-blue-50"
+          className="group relative block md:hidden text-gray-600 hover:text-blue-600 transition p-2 rounded-lg hover:bg-gray-100"
           onClick={onMenuClick}   
         >
           {isSidebarOpen ? <TbLayoutSidebarLeftCollapse className="text-2xl" /> : <TbLayoutSidebarRightCollapse className="text-2xl" />}
           
-          <div className="absolute inset-0 bg-blue-500/20 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
+          <div className="absolute inset-0 bg-gray-200 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
         </button>
       </div>
       
@@ -145,4 +147,4 @@ const handleLogout = async () => {
   );
 };
 
-export default Topbar;
+export default AdminTopbar;

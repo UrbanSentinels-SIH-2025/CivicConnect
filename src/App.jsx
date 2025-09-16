@@ -7,6 +7,9 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./middleware/protectedRoute";
 import LandingGuard from "./middleware/LandingGuard";
 import ReportIssue from "./pages/ReportIssue";
+import AdminLayout from "./components/layouts/AdminLayout";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import Issues from "./pages/Admin/Issues";
 const App = () => {
   return (
     <Router>
@@ -44,6 +47,26 @@ const App = () => {
           {/* Explicit path for /user/profile */}
           <Route path="report" element={<ReportIssue/>} />
         </Route>
+
+
+        <Route
+          path="/admin"
+          element={
+            
+              <AdminLayout />
+      
+          }
+        >
+          {/* This matches exactly /admin */}
+          <Route index element={<AdminDashboard />} />
+          {/* Explicit path for /admin/dashboard */}
+          <Route path="dashboard" element={<AdminDashboard />} />
+          {/* Explicit path for /admin/profile */}
+          <Route path="issues" element={<Issues/>} />
+        </Route>
+
+
+
       </Routes>
     </Router>
   );

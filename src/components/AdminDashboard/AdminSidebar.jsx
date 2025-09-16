@@ -8,19 +8,28 @@ import {
   FaListAlt, 
   FaCheckCircle, 
   FaAward,
-  FaCity ,
-    FaUser
+  FaCity,
+  FaUser,
+  FaUsers,
+  FaChartBar,
+  FaCog,
+  FaClipboardList,
+  FaBuilding,
+  FaExclamationTriangle
 } from 'react-icons/fa';
 
-const navItems = [
-  { path: '/user/dashboard', icon: <FaHome className="text-xl" />, label: 'Dashboard' },
-  { path: '/user/report', icon: <FaMapMarkerAlt className="text-xl" />, label: 'Report Issue' },
-  { path: '/user/my-Reports', icon: <FaListAlt className="text-xl" />, label: 'Track Issue' },
-  { path: '/user/verify', icon: <FaCheckCircle className="text-xl" />, label: 'Verifications' },
-  { path: '/user/Rewards', icon: <FaAward className="text-xl" />, label: 'Rewards' },
+const adminNavItems = [
+  { path: '/admin/dashboard', icon: <FaHome className="text-xl" />, label: 'Dashboard' },
+  { path: '/admin/issues', icon: <FaExclamationTriangle className="text-xl" />, label: 'All Issues' },
+  { path: '/admin/departments', icon: <FaBuilding className="text-xl" />, label: 'Departments' },
+  { path: '/admin/analytics', icon: <FaChartBar className="text-xl" />, label: 'Analytics' },
+  { path: '/admin/users', icon: <FaUsers className="text-xl" />, label: 'User Management' },
+  { path: '/admin/verifications', icon: <FaCheckCircle className="text-xl" />, label: 'Verifications' },
+  { path: '/admin/reports', icon: <FaClipboardList className="text-xl" />, label: 'Reports' },
+  { path: '/admin/settings', icon: <FaCog className="text-xl" />, label: 'Settings' },
 ];
 
-const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
+const AdminSidebar = ({ isSidebarOpen, onMenuClick }) => {
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 640;
 
@@ -42,25 +51,24 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
       className={`h-full fixed z-1000 sm:mt-0  
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
         sm:translate-x-0
-        px-4 py-4 bg-gradient-to-b from-white via-gray-50 to-white text-black font-sans md:flex flex-col overflow-hidden`}
+        px-4 py-4 bg-white text-gray-800 font-sans md:flex flex-col overflow-hidden shadow-sm border-r border-gray-200`}
     >
       
-
-      {/* User Profile Summary - Only shown when sidebar is open */}
+      {/* Admin Header - Only shown when sidebar is open */}
       {isSidebarOpen && (
         <motion.div 
-          className="mb-6 p-3 bg-blue-50 rounded-lg"
+          className="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-200"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
           <div className="flex items-center">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-              <FaUser className="text-blue-600 text-sm" />
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+              <FaUser className="text-gray-600 text-sm" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Ankeet Kumar Sah</h3>
-              <p className="text-xs text-gray-500">Trust Score: 87%</p>
+              <h3 className="font-semibold text-sm">Admin Panel</h3>
+              <p className="text-xs text-gray-500">Municipal Corporation</p>
             </div>
           </div>
         </motion.div>
@@ -68,18 +76,18 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
 
       {isSidebarOpen && (
         <motion.p
-          className="text-sm text-gray-400 mb-2 pl-3"
+          className="text-sm text-gray-500 mb-2 pl-3 font-medium"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.2, delay: 0.3, ease: 'easeInOut' }}
         >
-          Menu
+          Administration
         </motion.p>
       )}
 
       {/* Links */}
       <nav className="flex-1 px-2 space-y-1">
-        {navItems.map((item, index) => (
+        {adminNavItems.map((item, index) => (
           <NavLink
             key={item.path}
             to={item.path}
@@ -89,8 +97,8 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
                 isSidebarOpen ? 'justify-start pl-3' : 'justify-center px-5'
               } gap-3 px-3 py-3 rounded-md transition-all duration-300 font-medium ${
                 isActive 
-                  ? 'bg-blue-100 text-blue-600' 
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-blue-600'
+                  ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+                  : 'text-gray-600 hover:bg-blue-100 hover:text-blue-500'
               }`
             }
           >
@@ -114,14 +122,25 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
         ))}
       </nav>
 
-     
+      {/* Footer - Only shown when sidebar is open */}
+      {isSidebarOpen && (
+        <motion.div 
+          className="mt-4 pt-4 border-t border-gray-200 text-xs text-gray-500 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <p>CivicConnect Admin</p>
+          <p className="mt-1">v1.0.0</p>
+        </motion.div>
+      )}
     </motion.aside>
   );
 };
 
-Sidebar.propTypes = {
+AdminSidebar.propTypes = {
   isSidebarOpen: PropTypes.bool.isRequired,
   onMenuClick: PropTypes.func.isRequired,
 };
 
-export default Sidebar;
+export default AdminSidebar;
