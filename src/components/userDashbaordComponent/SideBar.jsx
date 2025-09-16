@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -15,7 +15,7 @@ import {
 const navItems = [
   { path: '/user/dashboard', icon: <FaHome className="text-xl" />, label: 'Dashboard' },
   { path: '/user/report', icon: <FaMapMarkerAlt className="text-xl" />, label: 'Report Issue' },
-  { path: '/user/my-Reports', icon: <FaListAlt className="text-xl" />, label: 'Track Issue' },
+  { path: '/user/my-issues', icon: <FaListAlt className="text-xl" />, label: 'Track Issue' },
   { path: '/user/verify', icon: <FaCheckCircle className="text-xl" />, label: 'Verifications' },
   { path: '/user/Rewards', icon: <FaAward className="text-xl" />, label: 'Rewards' },
 ];
@@ -23,12 +23,16 @@ const navItems = [
 const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 640;
+  
+  useEffect(()=>{
+    onMenuClick()
+  },[])
 
   // Close sidebar on mobile and navigate
   const handleLinkClick = (e, path) => {
     if (isMobile) {
       e.preventDefault();
-      onMenuClick(); // Close sidebar
+      onMenuClick(); 
       setTimeout(() => {
         navigate(path);
       });

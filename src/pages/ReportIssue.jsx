@@ -1,456 +1,410 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  FaFlag,
-  FaCamera,
-  FaCameraRetro,
-  FaCheckCircle,
-  FaArrowRight,
-  FaTimes,
-  FaMapMarkerAlt,
-} from "react-icons/fa";
 
 const ReportIssue = () => {
-  const [cameraStarted, setCameraStarted] = useState(false);
-  const [capturedImages, setCapturedImages] = useState([]);
-  const [cameraError, setCameraError] = useState(null);
-  const [stream, setStream] = useState(null);
-  const [formData, setFormData] = useState({
-    issueType: "",
-    description: "",
-    location: "",
-    coordinates: null
-  });
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [locationError, setLocationError] = useState(null);
-
+  const [recording, setRecording] = useState(false);
+  const [videoURL, setVideoURL] = useState(null);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [chunks, setChunks] = useState([]);
+  const [category, setCategory] = useState("");
+  const [location, setLocation] = useState(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const streamRef = useRef(null);
+  const chunksRef = useRef([]);
+  const timerRef = useRef(null);
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
-
-  // Get user's current location
-  const getCurrentLocation = () => {
+  // Get user location
+  const getLocation = () => {
     if (!navigator.geolocation) {
-      setLocationError("Geolocation is not supported by your browser");
+      console.error("Geolocation is not supported by this browser.");
       return;
     }
 
-    setLocationLoading(true);
-    setLocationError(null);
-
+    setUploadStatus("Getting location...");
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        
-        const { latitude, longitude } = position.coords;
-        setFormData(prevState => ({
-          ...prevState,
-          coordinates: { latitude, longitude }
-        }));
-        
-        // Reverse geocode to get address from coordinates
-        reverseGeocode(latitude, longitude);
-        setLocationLoading(false);
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        setUploadStatus("Location captured successfully!");
+        setTimeout(() => setUploadStatus(""), 2000);
       },
       (error) => {
-        setLocationLoading(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            setLocationError("Location access denied. Please enable location permissions.");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            setLocationError("Location information is unavailable.");
-            break;
-          case error.TIMEOUT:
-            setLocationError("Location request timed out.");
-            break;
-          default:
-            setLocationError("An unknown error occurred.");
-            break;
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
+        console.error("Error getting location:", error);
+        setUploadStatus("Failed to get location. Please ensure location services are enabled.");
+        setTimeout(() => setUploadStatus(""), 3000);
       }
     );
   };
 
-  // Reverse geocode coordinates to get address
-  const reverseGeocode = async (lat, lng) => {
+  // Start camera
+  const startCamera = async () => {
     try {
-      // Using OpenStreetMap Nominatim API for reverse geocoding
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
-      );
+      setUploadStatus("Starting camera...");
       
-      const data = await response.json();
+      // Request video and audio
+      const constraints = {
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        }
+      };
       
-      if (data && data.display_name) {
-        setFormData(prevState => ({
-          ...prevState,
-          location: data.display_name
-        }));
-      } else {
-        setFormData(prevState => ({
-          ...prevState,
-          location: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
-        }));
-      }
-    } catch (error) {
-      console.error("Reverse geocoding error:", error);
-      setFormData(prevState => ({
-        ...prevState,
-        location: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
-      }));
-    }
-  };
-
-  // Start the camera
-  const handleStartCamera = async () => {
-    try {
-      setCameraError(null);
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }, // back camera on mobile
-        audio: false,
-      });
-
-      setStream(mediaStream);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play(); // 👈 Force play
-      }
-
-      setCameraStarted(true);
-    } catch (err) {
-      setCameraError("Could not access camera. Please check permissions.");
-      console.error("Camera error:", err);
-    }
-  };
-
-  // Stop the camera
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      setStream(null);
-    }
-    setCameraStarted(false);
-  };
-
-  // Capture image from camera
-  const handleCaptureImage = () => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
-
-      // Set canvas dimensions to match video
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      // Draw current video frame to canvas
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Get image data URL
-      const imageDataUrl = canvas.toDataURL("image/png");
-      console.log("Captured image data URL:", imageDataUrl);
-      // Add to captured images array
-      setCapturedImages([...capturedImages, imageDataUrl]);
-    }
-  };
-
-  // Remove a captured image
-  const removeImage = (index) => {
-    const newImages = [...capturedImages];
-    newImages.splice(index, 1);
-    setCapturedImages(newImages);
-  };
-
-  // Clean up on component unmount
-  useEffect(() => {
-    if (videoRef.current && stream) {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = stream;
       videoRef.current.srcObject = stream;
-      videoRef.current.play().catch((err) => {
-        console.error("Video play error:", err);
-      });
-    }
-  }, [stream]);
-
-  // Handle form submission
-  const handleSubmitReport = async () => {
-    // Validate form data
-    if (!formData.issueType) {
-      alert("Please select an issue type");
-      return;
-    }
-    
-    if (!formData.description) {
-      alert("Please provide a description");
-      return;
-    }
-    
-    if (!formData.location) {
-      alert("Please get your location first");
-      return;
-    }
-
-    const submitData = new FormData();
-    submitData.append("issueType", formData.issueType);
-    submitData.append("description", formData.description);
-    submitData.append("location", formData.location);
-    
-    // Add coordinates if available
-    if (formData.coordinates) {
-      submitData.append("latitude", formData.coordinates.latitude);
-      submitData.append("longitude", formData.coordinates.longitude);
-    }
-
-    // Convert each base64 image to a Blob and append
-    capturedImages.forEach((dataUrl, index) => {
-      const arr = dataUrl.split(",");
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) u8arr[n] = bstr.charCodeAt(n);
-      const blob = new Blob([u8arr], { type: mime });
-      submitData.append("images", blob, `image-${index}.png`);
-    });
-
-    try {
-      const response = await fetch("http://localhost:5000/report-issue", {
-        method: "POST",
-        body: submitData,
-      });
-
-      const data = await response.json();
-      console.log("Server response:", data);
-
-      // Clear form and captured images on success
-      setFormData({
-        issueType: "",
-        description: "",
-        location: "",
-        coordinates: null
-      });
-      setCapturedImages([]);
+      videoRef.current.muted = true; // Mute playback to prevent feedback
+      setIsCameraActive(true);
+      setUploadStatus("");
       
-      alert("Report submitted successfully!");
+      // Check if we actually got audio
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        setUploadStatus("Microphone not available. Recording without audio.");
+        setTimeout(() => setUploadStatus(""), 3000);
+      }
     } catch (err) {
-      console.error("Error submitting report:", err);
-      alert("Error submitting report. Please try again.");
+      console.error("Error accessing camera:", err);
+      if (err.name === 'NotAllowedError') {
+        setUploadStatus("Permission denied. Please allow camera and microphone access.");
+      } else {
+        setUploadStatus("Could not access camera. Please check permissions.");
+      }
+      setTimeout(() => setUploadStatus(""), 3000);
     }
   };
+
+  // Stop camera
+  const stopCamera = () => {
+    if (streamRef.current) {
+      const tracks = streamRef.current.getTracks();
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+      setIsCameraActive(false);
+    }
+  };
+
+  // Start recording
+  const startRecording = () => {
+    if (!streamRef.current) return;
+    
+    setUploadStatus("Recording started...");
+    chunksRef.current = [];
+    setChunks([]);
+    setRecordingTime(0);
+    
+    const options = { mimeType: 'video/webm; codecs=vp9,opus' };
+    const recorder = new MediaRecorder(streamRef.current, options);
+    
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunksRef.current.push(e.data);
+        setChunks(prev => [...prev, e.data]);
+      }
+    };
+    
+    recorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: "video/webm" });
+      const url = URL.createObjectURL(blob);
+      setVideoURL(url);
+      setUploadStatus("Recording completed. Ready to submit.");
+      clearInterval(timerRef.current);
+      setTimeout(() => setUploadStatus(""), 2000);
+    };
+    
+    // Start recording timer
+    timerRef.current = setInterval(() => {
+      setRecordingTime(prev => prev + 1);
+    }, 1000);
+    
+    recorder.start(1000); // Capture data every second
+    setMediaRecorder(recorder);
+    setRecording(true);
+  };
+
+  // Stop recording
+  const stopRecording = () => {
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setRecording(false);
+      stopCamera();
+    }
+  };
+
+  // Format time for display
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Upload video
+  const uploadVideo = async () => {
+    if (!chunksRef.current.length) {
+      setUploadStatus("No recording found. Please record a video first.");
+      setTimeout(() => setUploadStatus(""), 3000);
+      return;
+    }
+    
+    if (!category) {
+      setUploadStatus("Please select a category first.");
+      setTimeout(() => setUploadStatus(""), 3000);
+      return;
+    }
+
+    setIsUploading(true);
+
+    // Get location if not already captured
+  if (!location?.lat || !location?.lng) {
+  setUploadStatus("Location not captured yet. Please allow location access.");
+  setTimeout(() => setUploadStatus(""), 3000);
+  return;
+}
+
+
+    // Generate title based on category + timestamp
+  const now = new Date();
+  const formattedDate = now.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const title = `${category} – ${formattedDate}`; // <-- new title
+
+
+
+    const blob = new Blob(chunksRef.current, { type: "video/webm" });
+    const formData = new FormData();
+    formData.append("video", blob, "recorded-video.webm");
+    formData.append("category", category);
+    formData.append("title", title);  // <-- send title to backend
+    formData.append("latitude", Number(location.lat));
+formData.append("longitude", Number(location.lng));
+
+
+    setUploadStatus("Uploading...");
+    try {
+      const res = await fetch("http://localhost:5000/report-issue", {
+        method: "POST",
+        body: formData,
+        credentials: "include", // <-- this is needed for cookies
+      });
+      
+      if (!res.ok) {
+        throw new Error(`Server responded with ${res.status}`);
+      }
+      
+      const data = await res.json();
+      console.log("Upload success:", data);
+      setUploadStatus("Issue reported successfully!");
+      
+      // Reset form
+      setVideoURL(null);
+      setCategory("");
+      chunksRef.current = [];
+      setChunks([]);
+      setRecordingTime(0);
+      
+      setTimeout(() => {
+        setUploadStatus("");
+        setIsUploading(false);
+      }, 3000);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setUploadStatus("Upload failed. Please try again.");
+      setTimeout(() => {
+        setUploadStatus("");
+        setIsUploading(false);
+      }, 3000);
+    }
+  };
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        const tracks = streamRef.current.getTracks();
+        tracks.forEach(track => track.stop());
+      }
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <div className="p-2 md:p-3">
-      <div className="md:w-[60%] mx-auto p-6 bg-white rounded-lg shadow-md">
-        <div className="flex items-center mb-6">
-          <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
-            <FaFlag className="text-blue-600 text-xl" />
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Report an Issue
-          </h1>
-        </div>
-
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <FaCamera className="text-blue-600 mr-2" />
-            Capture Image
-          </h2>
-
-          <div className="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 overflow-hidden relative">
-            {cameraStarted ? (
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <p className="text-gray-400">Camera feed will appear here</p>
+    <div className="max-w-7xl mx-auto p-6 bg-white rounded-xl shadow-xl">
+      <h2 className="text-3xl font-bold mb-6 text-center text-blue-700 bg-gradient-to-r from-blue-50 to-indigo-50 py-4 rounded-xl">Report an Issue</h2>
+      
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Left column - Camera and controls */}
+        <div>
+          <div className="mb-6 relative rounded-xl overflow-hidden shadow-md">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-64 md:h-80 bg-gray-900 object-cover"
+            />
+            {!isCameraActive && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                <div className="text-center text-gray-300">
+                  <svg className="w-16 h-16 mx-auto mb-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm">Camera feed will appear here</p>
+                </div>
+              </div>
             )}
-
-            {/* Hidden canvas for capturing images */}
-            <canvas ref={canvasRef} className="hidden" />
-
-            {cameraError && (
-              <div className="absolute inset-0 flex items-center justify-center bg-red-100 bg-opacity-80">
-                <p className="text-red-600 font-medium text-center p-4">
-                  {cameraError}
-                </p>
+            
+            {recording && (
+              <div className="absolute top-4 right-4 flex items-center bg-red-600 text-white px-3 py-1 rounded-full">
+                <div className="w-3 h-3 bg-white rounded-full mr-2 animate-pulse"></div>
+                <span className="text-sm font-medium">Recording {formatTime(recordingTime)}</span>
               </div>
             )}
           </div>
 
-          <div className="mt-4 flex justify-center">
-            {!cameraStarted ? (
-              <button
-                onClick={handleStartCamera}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center"
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {!isCameraActive ? (
+              <button 
+                onClick={startCamera} 
+                className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:-translate-y-1 shadow-md"
               >
-                <FaCamera className="mr-2" />
-                Open Camera
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Start Camera
               </button>
             ) : (
-              <div className="flex space-x-3">
-                <button
-                  onClick={stopCamera}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
-                >
-                  Close Camera
-                </button>
-                <button
-                  onClick={handleCaptureImage}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center"
-                >
-                  <FaCameraRetro className="mr-2" />
-                  Capture Picture
-                </button>
-              </div>
+              <button 
+                onClick={stopCamera} 
+                className="flex items-center justify-center px-4 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1 shadow-md"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Stop Camera
+              </button>
+            )}
+            
+            {!recording ? (
+              <button 
+                onClick={startRecording} 
+                disabled={!isCameraActive}
+                className={`flex items-center justify-center px-4 py-3 rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-md ${isCameraActive ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-400 text-gray-200 cursor-not-allowed'}`}
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                </svg>
+                Start Recording
+              </button>
+            ) : (
+              <button 
+                onClick={stopRecording} 
+                className="flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-300 transform hover:-translate-y-1 shadow-md"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                </svg>
+                Stop Recording
+              </button>
             )}
           </div>
         </div>
 
-        {/* Image Previews */}
-        {capturedImages.length > 0 && (
+        {/* Right column - Category selection and preview */}
+        <div>
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
-              Captured Images
-            </h3>
+            <label className="block text-gray-700 font-medium mb-3 text-lg">Issue Category</label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {capturedImages.map((image, index) => (
-                <div key={index} className="relative">
-                  <img
-                    src={image}
-                    alt={`Captured ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                  />
-                  <button
-                    onClick={() => removeImage(index)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
-                  >
-                    <FaTimes className="text-xs" />
-                  </button>
-                </div>
+              {['Street', 'Road', 'Water', 'Electricity', 'Sanitation'].map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setCategory(opt)}
+                  className={`py-3 px-4 rounded-xl border transition-all duration-200 text-sm font-medium ${category === opt 
+                    ? 'bg-blue-100 border-blue-500 text-blue-700 shadow-inner scale-95' 
+                    : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100 hover:shadow-md'}`}
+                >
+                  {opt}
+                </button>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Issue Details Form */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            <svg 
-              className="w-5 h-5 text-blue-600 mr-2" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24" 
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" 
-              />
-            </svg>
-            Issue Details
-          </h2>
-          
-          <div className="gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Issue Type
-              </label>
-              <select 
-                name="issueType"
-                value={formData.issueType}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          {videoURL && (
+            <div className="mt-6 p-5 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl shadow-md">
+              <h3 className="font-semibold text-lg mb-3 text-gray-700 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Recording Preview
+              </h3>
+              <video src={videoURL} controls className="w-full h-48 rounded-lg mb-4 shadow-inner" />
+              
+              <div className="flex items-center mb-4 p-3 bg-white rounded-lg shadow-sm">
+                <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-sm text-gray-600">
+                  {location ? `Location: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : "Location will be captured on submit"}
+                </span>
+              </div>
+              
+              <button 
+                onClick={uploadVideo} 
+                disabled={isUploading}
+                className={`w-full flex items-center justify-center px-4 py-3 rounded-xl transition-all duration-300 shadow-md ${isUploading 
+                  ? 'bg-purple-400 cursor-not-allowed' 
+                  : 'bg-purple-600 hover:bg-purple-700 hover:-translate-y-1'}`}
               >
-                <option value="">Select issue type</option>
-                <option value="Damage">Damage</option>
-                <option value="Malfunction">Malfunction</option>
-                <option value="Safety Concern">Safety Concern</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
-          
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none h-32"
-              placeholder="Please describe the issue in detail..."
-            ></textarea>
-          </div>
-          
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Location
-            </label>
-            <div className="flex items-center">
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                readOnly
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                placeholder="Click the button to get your location"
-              />
-              <button
-                onClick={getCurrentLocation}
-                disabled={locationLoading}
-                className="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center disabled:bg-gray-400"
-              >
-                {locationLoading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                {isUploading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Locating...
-                  </span>
+                    Processing...
+                  </>
                 ) : (
-                  <span className="flex items-center">
-                    <FaMapMarkerAlt className="mr-2" />
-                    Get Location
-                  </span>
+                  <>
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Submit Issue Report
+                  </>
                 )}
               </button>
             </div>
-            {locationError && (
-              <p className="text-red-500 text-sm mt-1">{locationError}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            onClick={handleSubmitReport}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition flex items-center"
-          >
-            Submit Report <FaArrowRight className="ml-2" />
-          </button>
+          )}
         </div>
       </div>
+
+      {uploadStatus && (
+        <div className={`mt-4 p-4 rounded-xl text-center transition-all duration-300 ${uploadStatus.includes('success') 
+          ? 'bg-green-100 text-green-700 border border-green-200' 
+          : uploadStatus.includes('Failed') || uploadStatus.includes('Please') 
+            ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' 
+            : 'bg-blue-100 text-blue-700 border border-blue-200'}`}>
+          {uploadStatus}
+        </div>
+      )}
     </div>
   );
 };

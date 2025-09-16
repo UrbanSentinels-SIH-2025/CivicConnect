@@ -4,19 +4,37 @@ import Sidebar from '../userDashbaordComponent/SideBar';
 import Topbar from '../userDashbaordComponent/TopBar';
 
 export default function UserApplicationLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    return window.innerWidth >= 768; // open on desktop, closed on mobile
+  });
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => !prev);
   }, []);
 
+  // 👇 auto-adjust when screen resizes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true);   // desktop → open
+      } else {
+        setIsSidebarOpen(false);  // mobile → closed
+      }
+    };
+
+    handleResize(); // run once on mount
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Disable body scroll when sidebar is open (on mobile)
   useEffect(() => {
-    if (window.innerWidth < 768) { // only on mobile/tablet
+    if (window.innerWidth < 768) {
       document.body.style.overflow = isSidebarOpen ? "hidden" : "auto";
     }
     return () => {
-      document.body.style.overflow = "auto"; // reset on unmount
+      document.body.style.overflow = "auto";
     };
   }, [isSidebarOpen]);
 

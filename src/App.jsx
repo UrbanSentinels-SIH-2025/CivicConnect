@@ -10,6 +10,7 @@ import ReportIssue from "./pages/ReportIssue";
 import AdminLayout from "./components/layouts/AdminLayout";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import Issues from "./pages/Admin/Issues";
+import MyReports from "./pages/MyReports";
 const App = () => {
   return (
     <Router>
@@ -46,6 +47,7 @@ const App = () => {
 
           {/* Explicit path for /user/profile */}
           <Route path="report" element={<ReportIssue/>} />
+            <Route path="my-issues" element={<MyReports/>} />
         </Route>
 
 
@@ -63,6 +65,7 @@ const App = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           {/* Explicit path for /admin/profile */}
           <Route path="issues" element={<Issues/>} />
+        
         </Route>
 
 
