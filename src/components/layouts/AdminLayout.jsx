@@ -36,7 +36,7 @@ export default function AdminLayout() {
         )}
 
         <main
-          className={`flex-grow max-w-full transition-all duration-300 ease-in-out 
+          className={`flex-grow  max-w-full transition-all duration-300 ease-in-out 
           ${isSidebarOpen ? "md:ml-64" : "md:ml-20"}  overflow-x-hidden`}
         >
           <Outlet />

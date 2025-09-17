@@ -18,27 +18,32 @@ const ReportIssue = () => {
 
   // Get user location
   const getLocation = () => {
-    if (!navigator.geolocation) {
-      console.error("Geolocation is not supported by this browser.");
-      return;
-    }
-
-    setUploadStatus("Getting location...");
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
-        setUploadStatus("Location captured successfully!");
-        setTimeout(() => setUploadStatus(""), 2000);
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-        setUploadStatus("Failed to get location. Please ensure location services are enabled.");
-        setTimeout(() => setUploadStatus(""), 3000);
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation is not supported by this browser."));
+        return;
       }
-    );
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const locationData = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setLocation(locationData);
+          resolve(locationData);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    });
   };
 
   // Start camera
@@ -62,7 +67,7 @@ const ReportIssue = () => {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       videoRef.current.srcObject = stream;
-      videoRef.current.muted = true; // Mute playback to prevent feedback
+      videoRef.current.muted = true;
       setIsCameraActive(true);
       setUploadStatus("");
       
@@ -126,7 +131,7 @@ const ReportIssue = () => {
       setRecordingTime(prev => prev + 1);
     }, 1000);
     
-    recorder.start(1000); // Capture data every second
+    recorder.start(1000);
     setMediaRecorder(recorder);
     setRecording(true);
   };
@@ -162,43 +167,40 @@ const ReportIssue = () => {
     }
 
     setIsUploading(true);
+    setUploadStatus("Capturing your location...");
 
-    // Get location if not already captured
-  if (!location?.lat || !location?.lng) {
-  setUploadStatus("Location not captured yet. Please allow location access.");
-  setTimeout(() => setUploadStatus(""), 3000);
-  return;
-}
-
-
-    // Generate title based on category + timestamp
-  const now = new Date();
-  const formattedDate = now.toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  const title = `${category} – ${formattedDate}`; // <-- new title
-
-
-
-    const blob = new Blob(chunksRef.current, { type: "video/webm" });
-    const formData = new FormData();
-    formData.append("video", blob, "recorded-video.webm");
-    formData.append("category", category);
-    formData.append("title", title);  // <-- send title to backend
-    formData.append("latitude", Number(location.lat));
-formData.append("longitude", Number(location.lng));
-
-
-    setUploadStatus("Uploading...");
     try {
+      // Get location with error handling
+      let locationData = location;
+      if (!locationData) {
+        locationData = await getLocation();
+      }
+
+      // Generate title based on category + timestamp
+      const now = new Date();
+      const formattedDate = now.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const title = `${category} – ${formattedDate}`;
+
+      const blob = new Blob(chunksRef.current, { type: "video/webm" });
+      const formData = new FormData();
+      formData.append("video", blob, "recorded-video.webm");
+      formData.append("category", category);
+      formData.append("title", title);
+      formData.append("latitude", Number(locationData.lat));
+      formData.append("longitude", Number(locationData.lng));
+
+      setUploadStatus("Uploading...");
+      
       const res = await fetch("http://localhost:5000/report-issue", {
         method: "POST",
         body: formData,
-        credentials: "include", // <-- this is needed for cookies
+        credentials: "include",
       });
       
       if (!res.ok) {
@@ -222,7 +224,13 @@ formData.append("longitude", Number(location.lng));
       }, 3000);
     } catch (err) {
       console.error("Upload failed:", err);
-      setUploadStatus("Upload failed. Please try again.");
+      let errorMessage = "Upload failed. Please try again.";
+      
+      if (err.message.includes("geolocation") || err.message.includes("location")) {
+        errorMessage = "Location access denied. Please enable location services to report an issue.";
+      }
+      
+      setUploadStatus(errorMessage);
       setTimeout(() => {
         setUploadStatus("");
         setIsUploading(false);
@@ -363,7 +371,7 @@ formData.append("longitude", Number(location.lng));
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <span className="text-sm text-gray-600">
-                  {location ? `Location: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : "Location will be captured on submit"}
+                  {location ? `Location will be captured on submit` : "Location will be captured on submit"}
                 </span>
               </div>
               
@@ -399,7 +407,7 @@ formData.append("longitude", Number(location.lng));
       {uploadStatus && (
         <div className={`mt-4 p-4 rounded-xl text-center transition-all duration-300 ${uploadStatus.includes('success') 
           ? 'bg-green-100 text-green-700 border border-green-200' 
-          : uploadStatus.includes('Failed') || uploadStatus.includes('Please') 
+          : uploadStatus.includes('Failed') || uploadStatus.includes('Please') || uploadStatus.includes('denied')
             ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' 
             : 'bg-blue-100 text-blue-700 border border-blue-200'}`}>
           {uploadStatus}

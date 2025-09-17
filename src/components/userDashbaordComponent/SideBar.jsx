@@ -16,7 +16,7 @@ const navItems = [
   { path: '/user/dashboard', icon: <FaHome className="text-xl" />, label: 'Dashboard' },
   { path: '/user/report', icon: <FaMapMarkerAlt className="text-xl" />, label: 'Report Issue' },
   { path: '/user/my-issues', icon: <FaListAlt className="text-xl" />, label: 'Track Issue' },
-  { path: '/user/verify', icon: <FaCheckCircle className="text-xl" />, label: 'Verifications' },
+  { path: '/user/community-reports', icon: <FaCheckCircle className="text-xl" />, label: 'Verifications' },
   { path: '/user/Rewards', icon: <FaAward className="text-xl" />, label: 'Rewards' },
 ];
 

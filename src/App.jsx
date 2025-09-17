@@ -11,6 +11,7 @@ import AdminLayout from "./components/layouts/AdminLayout";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import Issues from "./pages/Admin/Issues";
 import MyReports from "./pages/MyReports";
+import Verification from "./pages/Verification";
 const App = () => {
   return (
     <Router>
@@ -48,6 +49,7 @@ const App = () => {
           {/* Explicit path for /user/profile */}
           <Route path="report" element={<ReportIssue/>} />
             <Route path="my-issues" element={<MyReports/>} />
+            <Route path="community-reports" element={<Verification/>} />
         </Route>
 
 

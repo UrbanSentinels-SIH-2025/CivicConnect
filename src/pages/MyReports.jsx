@@ -1,117 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaFlag, FaCheckCircle, FaUsers, FaMedal, FaFilter, FaSort, FaSearch, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaPlay, FaClock, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import api from "../api/axios.js"
 
 const MyReports = () => {
-  // Sample reports data based on the provided structure
-  const [reports, setReports] = useState([
-    {
-      _id: "68c9c6b1cb6755b956e44e57",
-      title: "Street – 17 Sept 2025, 01:50",
-      category: "Street",
-      status: "Pending",
-      createdAt: "2025-09-16T20:21:05.907+00:00",
-      location: {
-        latitude: 19.048513983424947,
-        longitude: 83.83460043809389
-      },
-      verifications: 3,
-      views: 15,
-      videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758054063/report-videos/iipn4d29dootnvgavphv.webm",
-      thumbnail: "https://i.imgur.com/7S7qz6g.jpeg",
-      progress: {
-        reported: { date: "2025-09-16", completed: true },
-        verified: { date: null, completed: false },
-        inProgress: { date: null, completed: false },
-        resolved: { date: null, completed: false }
-      }
-    },
-    {
-      _id: "68c9c6b1cb6755b956e44e58",
-      title: "Garbage Pileup – 16 Sept 2025, 14:30",
-      category: "Sanitation",
-      status: "In Progress",
-      createdAt: "2025-09-15T14:30:00.000+00:00",
-      location: {
-        latitude: 19.058713983424947,
-        longitude: 83.84460043809389
-      },
-      verifications: 12,
-      views: 48,
-      videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758054063/report-video-2.mp4",
-      thumbnail: "https://i.imgur.com/5JaJZ7Q.jpeg",
-      progress: {
-        reported: { date: "2025-09-15", completed: true },
-        verified: { date: "2025-09-16", completed: true },
-        inProgress: { date: "2025-09-17", completed: true },
-        resolved: { date: null, completed: false }
-      }
-    },
-    {
-      _id: "68c9c6b1cb6755b956e44e59",
-      title: "Streetlight Outage – 15 Sept 2025, 20:15",
-      category: "Electrical",
-      status: "Verified",
-      createdAt: "2025-09-14T20:15:00.000+00:00",
-      location: {
-        latitude: 19.038513983424947,
-        longitude: 83.82460043809389
-      },
-      verifications: 8,
-      views: 32,
-      videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758054063/report-video-3.mp4",
-      thumbnail: "https://i.imgur.com/3GJYKWp.jpeg",
-      progress: {
-        reported: { date: "2025-09-14", completed: true },
-        verified: { date: "2025-09-15", completed: true },
-        inProgress: { date: null, completed: false },
-        resolved: { date: null, completed: false }
-      }
-    },
-    {
-      _id: "68c9c6b1cb6755b956e44e60",
-      title: "Water Logging – 14 Sept 2025, 11:20",
-      category: "Drainage",
-      status: "Resolved",
-      createdAt: "2025-09-13T11:20:00.000+00:00",
-      location: {
-        latitude: 19.068513983424947,
-        longitude: 83.85460043809389
-      },
-      verifications: 18,
-      views: 72,
-      videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758054063/report-video-4.mp4",
-      thumbnail: "https://i.imgur.com/9L9ZQ2J.jpeg",
-      progress: {
-        reported: { date: "2025-09-13", completed: true },
-        verified: { date: "2025-09-13", completed: true },
-        inProgress: { date: "2025-09-14", completed: true },
-        resolved: { date: "2025-09-15", completed: true }
-      }
-    },
-    {
-      _id: "68c9c6b1cb6755b956e44e61",
-      title: "Road Damage – 13 Sept 2025, 09:45",
-      category: "Infrastructure",
-      status: "Pending",
-      createdAt: "2025-09-12T09:45:00.000+00:00",
-      location: {
-        latitude: 19.028513983424947,
-        longitude: 83.81460043809389
-      },
-      verifications: 5,
-      views: 25,
-      videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758054063/report-video-5.mp4",
-      thumbnail: "https://i.imgur.com/8Q6QY7J.jpeg",
-      progress: {
-        reported: { date: "2025-09-12", completed: true },
-        verified: { date: null, completed: false },
-        inProgress: { date: null, completed: false },
-        resolved: { date: null, completed: false }
-      }
-    }
-  ]);
-
-  const [filteredReports, setFilteredReports] = useState(reports);
+  const [reports, setReports] = useState([]);
+  const [filteredReports, setFilteredReports] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -120,14 +13,34 @@ const MyReports = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [viewMode, setViewMode] = useState("grid");
   const [playingVideo, setPlayingVideo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const videoRefs = useRef({});
+
+  // Fetch reports from API
+  useEffect(() => {
+    const fetchIssues = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/user-issue"); 
+        setReports(res.data.issues);
+        setFilteredReports(res.data.issues);
+      } catch (err) {
+        setError(err.message || "Error fetching issues");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchIssues();
+  }, []);
 
   // Get unique categories from reports
   const categories = [...new Set(reports.map(report => report.category))];
 
   // Filter and sort reports based on user selection
   useEffect(() => {
-    let result = reports;
+    let result = [...reports];
     
     if (searchTerm) {
       result = result.filter(report => 
@@ -151,14 +64,27 @@ const MyReports = () => {
           : new Date(b.createdAt) - new Date(a.createdAt);
       } else if (sortBy === "verifications") {
         return sortOrder === "asc" ? a.verifications - b.verifications : b.verifications - a.verifications;
-      } else if (sortBy === "views") {
-        return sortOrder === "asc" ? a.views - b.views : b.views - a.views;
-      }
+      } 
       return 0;
     });
     
     setFilteredReports(result);
   }, [searchTerm, statusFilter, categoryFilter, sortBy, sortOrder, reports]);
+
+  // Determine status based on progress
+  const getStatusFromProgress = (progress) => {
+    if (progress.resolved.completed) return "Resolved";
+    if (progress.inProgress.completed) return "In Progress";
+    if (progress.verified.completed) return "Verified";
+    return "Pending";
+  };
+
+  // Add status to each report based on progress
+  const reportsWithStatus = filteredReports.map(report => ({
+    ...report,
+    status: getStatusFromProgress(report.progress),
+    
+  }));
 
   const statusColors = {
     "Pending": "bg-blue-100 text-blue-800",
@@ -227,7 +153,7 @@ const MyReports = () => {
   // Progress Tracker Component (Flipkart-style)
   const ProgressTracker = ({ report }) => {
     const steps = [
-      { key: 'reported', label: 'Reported', date: report.progress.reported.date },
+      
       { key: 'verified', label: 'Verified', date: report.progress.verified.date },
       { key: 'inProgress', label: 'In Progress', date: report.progress.inProgress.date },
       { key: 'resolved', label: 'Resolved', date: report.progress.resolved.date }
@@ -296,6 +222,35 @@ const MyReports = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your reports...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 md:p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-800">Error Loading Reports</h2>
+          <p className="text-gray-600 mt-2">{error}</p>
+          <button 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -325,7 +280,7 @@ const MyReports = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">In Progress</p>
-              <h3 className="text-2xl font-bold">{reports.filter(r => r.status === "In Progress").length}</h3>
+              <h3 className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "In Progress").length}</h3>
             </div>
           </div>
         </div>
@@ -337,7 +292,7 @@ const MyReports = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Resolved</p>
-              <h3 className="text-2xl font-bold">{reports.filter(r => r.status === "Resolved").length}</h3>
+              <h3 className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "Resolved").length}</h3>
             </div>
           </div>
         </div>
@@ -350,7 +305,9 @@ const MyReports = () => {
             <div>
               <p className="text-sm text-gray-500">Avg. Verifications</p>
               <h3 className="text-2xl font-bold">
-                {Math.round(reports.reduce((sum, report) => sum + report.verifications, 0) / reports.length)}
+                {reports.length > 0 
+                  ? Math.round(reportsWithStatus.reduce((sum, report) => sum + report.verifications, 0) / reports.length)
+                  : 0}
               </h3>
             </div>
           </div>
@@ -404,7 +361,7 @@ const MyReports = () => {
             >
               <option value="date">Sort by Date</option>
               <option value="verifications">Sort by Verifications</option>
-              <option value="views">Sort by Views</option>
+             
             </select>
             
             <button 
@@ -437,14 +394,14 @@ const MyReports = () => {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">
-            {filteredReports.length} Report{filteredReports.length !== 1 ? 's' : ''} Found
+            {reportsWithStatus.length} Report{reportsWithStatus.length !== 1 ? 's' : ''} Found
           </h2>
         </div>
 
         {viewMode === 'list' ? (
           /* List View */
           <div className="space-y-4">
-            {filteredReports.map(report => (
+            {reportsWithStatus.map(report => (
               <div 
                 key={report._id} 
                 className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-shadow"
@@ -488,10 +445,7 @@ const MyReports = () => {
                         <FaCheckCircle className="text-green-500 mr-1" />
                         <span>{report.verifications} verifications</span>
                       </div>
-                      <div className="flex items-center text-gray-600">
-                        <FaEye className="text-gray-500 mr-1" />
-                        <span>{report.views} views</span>
-                      </div>
+                     
                     </div>
 
                     {/* Progress Tracker */}
@@ -504,7 +458,7 @@ const MyReports = () => {
         ) : (
           /* Grid View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredReports.map(report => (
+            {reportsWithStatus.map(report => (
               <div 
                 key={report._id} 
                 className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow flex flex-col"
@@ -541,10 +495,7 @@ const MyReports = () => {
                       <FaCheckCircle className="text-green-500 mr-1" />
                       {report.verifications}
                     </span>
-                    <span className="flex items-center">
-                      <FaEye className="text-gray-500 mr-1" />
-                      {report.views}
-                    </span>
+                    
                     <span>{formatDate(report.createdAt)}</span>
                   </div>
 
@@ -581,7 +532,7 @@ const MyReports = () => {
           </div>
         )}
 
-        {filteredReports.length === 0 && (
+        {reportsWithStatus.length === 0 && (
           <div className="text-center py-10 bg-white rounded-lg shadow-sm">
             <FaFilter className="text-4xl text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-gray-500">No reports found</h3>
@@ -642,10 +593,7 @@ const MyReports = () => {
                   <p className="font-medium">{selectedReport.verifications}</p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Views</h3>
-                  <p className="font-medium">{selectedReport.views}</p>
-                </div>
+                
               </div>
 
               {/* Progress Tracker in Modal */}
