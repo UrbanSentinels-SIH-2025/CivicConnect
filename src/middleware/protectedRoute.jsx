@@ -44,6 +44,7 @@ if (isLoading)
 
 
   if (isError || !user) {
+    console.log('data nahi hai')
     return <Navigate to="/" replace />;
   }
 
