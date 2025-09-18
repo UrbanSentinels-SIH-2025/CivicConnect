@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { RiLoginCircleLine, RiCloseLine } from "react-icons/ri";
-
+import api from "../api/axios";
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -14,8 +14,9 @@ export default function Login() {
 
    
 
-  const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5000/auth/google";
+ const handleGoogleLogin = () => {
+    // ✅ use the baseURL from axios config
+    window.location.href = `${api.defaults.baseURL}/auth/google`;
   };
 
   return (

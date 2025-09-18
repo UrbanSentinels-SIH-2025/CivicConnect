@@ -6,7 +6,7 @@ import useAuthStore from "../store/useAuthStore";
 import { useEffect } from "react";
 
 const fetchUser = async () => {
-  const { data } = await axios.get("http://localhost:5000/auth/me", {
+   const { data } = await api.get("/auth/me", {
     withCredentials: true, // ✅ send cookie
   });
   return data.user;

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-
+import api from "../api/axios";
 const ReportIssue = () => {
   const [recording, setRecording] = useState(false);
   const [videoURL, setVideoURL] = useState(null);
@@ -197,11 +197,11 @@ const ReportIssue = () => {
 
       setUploadStatus("Uploading...");
       
-      const res = await fetch("http://localhost:5000/report-issue", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
+     const res = await fetch(`${api.defaults.baseURL}/report-issue`, {
+  method: "POST",
+  body: formData,
+  credentials: "include",
+});
       
       if (!res.ok) {
         throw new Error(`Server responded with ${res.status}`);
