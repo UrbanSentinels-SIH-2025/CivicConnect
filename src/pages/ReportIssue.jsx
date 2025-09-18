@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import api from "../api/axios";
+
 const ReportIssue = () => {
   const [recording, setRecording] = useState(false);
   const [videoURL, setVideoURL] = useState(null);
@@ -11,10 +12,26 @@ const ReportIssue = () => {
   const [uploadStatus, setUploadStatus] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
+
+  // Detect if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobileDevice(isMobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   // Get user location
   const getLocation = () => {
@@ -46,16 +63,17 @@ const ReportIssue = () => {
     });
   };
 
-  // Start camera
+  // Start camera with appropriate camera selection
   const startCamera = async () => {
     try {
       setUploadStatus("Starting camera...");
       
-      // Request video and audio
+      // Set camera constraints based on device type
       const constraints = {
         video: {
           width: { ideal: 1280 },
-          height: { ideal: 720 }
+          height: { ideal: 720 },
+          facingMode: isMobileDevice ? { exact: "environment" } : "user"
         },
         audio: {
           echoCancellation: true,
@@ -79,6 +97,38 @@ const ReportIssue = () => {
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
+      
+      // If back camera fails on mobile, try front camera as fallback
+      if (isMobileDevice && err.name === 'OverconstrainedError' && err.constraint === 'facingMode') {
+        setUploadStatus("Back camera not available. Trying front camera...");
+        
+        try {
+          const fallbackConstraints = {
+            video: {
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              facingMode: "user"
+            },
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              sampleRate: 44100
+            }
+          };
+          
+          const stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+          streamRef.current = stream;
+          videoRef.current.srcObject = stream;
+          videoRef.current.muted = true;
+          setIsCameraActive(true);
+          setUploadStatus("Using front camera (back camera unavailable)");
+          setTimeout(() => setUploadStatus(""), 3000);
+          return;
+        } catch (fallbackError) {
+          console.error("Error accessing front camera:", fallbackError);
+        }
+      }
+      
       if (err.name === 'NotAllowedError') {
         setUploadStatus("Permission denied. Please allow camera and microphone access.");
       } else {
@@ -197,11 +247,11 @@ const ReportIssue = () => {
 
       setUploadStatus("Uploading...");
       
-     const res = await fetch(`${api.defaults.baseURL}/report-issue`, {
-  method: "POST",
-  body: formData,
-  credentials: "include",
-});
+      const res = await fetch(`${api.defaults.baseURL}/report-issue`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
       
       if (!res.ok) {
         throw new Error(`Server responded with ${res.status}`);
@@ -273,6 +323,9 @@ const ReportIssue = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                   <p className="text-sm">Camera feed will appear here</p>
+                  <p className="text-xs mt-1 opacity-75">
+                    {isMobileDevice ? "Using back camera" : "Using front camera"}
+                  </p>
                 </div>
               </div>
             )}
