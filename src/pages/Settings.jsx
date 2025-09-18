@@ -8,37 +8,91 @@ import {
   FaSave,
   FaEdit,
   FaCrosshairs,
-  FaGlobe,
-  FaShieldAlt,
-  FaPalette,
-  FaLanguage
+  FaGlobe
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import useAuthStore from "../store/useAuthStore";
+import api from "../api/axios";
 
 const Settings = () => {
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout); // Get logout function from store
+  const navigate = useNavigate(); // Initialize navigate
+  
   const [coords, setCoords] = useState({
-    latitude: 19.076,
-    longitude: 72.8777,
+    latitude: 0,
+    longitude: 0,
   });
+  
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const [userData, setUserData] = useState({
-    name: "John Doe",
-    email: "johndoe@gmail.com",
+    name: "",
+    email: "",
     language: "English",
-    theme: "Light",
     notifications: {
       issuesNearby: true,
       reportUpdates: true,
       emailAlerts: false,
-      pushNotifications: true
+      pushNotifications: true,
     }
   });
 
+ const [loggingOut, setLoggingOut] = useState(false);
+
+const handleLogout = async () => {
+  setLoggingOut(true);
+  
+  try {
+    // Call the backend logout endpoint via axios instance
+    const response = await api.get("/auth/logout", {
+      withCredentials: true, // ensures cookies are sent
+    });
+
+    console.log(response.data?.message || "Logged out successfully");
+
+
+    // Redirect to login page
+    navigate("/");
+  }catch (error) {
+    console.error("Logout error:", error.response?.data || error.message);
+
+    navigate("/");
+  }  finally {
+    setLoggingOut(false);
+  }
+};
+
+
+
+  // Initialize user data and coordinates when user is available
+  useEffect(() => {
+    if (user) {
+      setUserData(prev => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || ""
+      }));
+      
+      if (user.location?.lat && user.location?.lng) {
+        setCoords({
+          latitude: user.location.lat,
+          longitude: user.location.lng
+        });
+      } else {
+        // If user doesn't have location, try to get it from browser
+        getCurrentLocation();
+      }
+    }
+  }, [user]);
+
   // Function to perform reverse geocoding
   const reverseGeocode = async (latitude, longitude) => {
+    if (latitude === 0 && longitude === 0) return;
+    
     setLoading(true);
     setError("");
     
@@ -68,8 +122,10 @@ const Settings = () => {
   };
 
   useEffect(() => {
-    reverseGeocode(coords.latitude, coords.longitude);
-  }, []);
+    if (coords.latitude !== 0 && coords.longitude !== 0) {
+      reverseGeocode(coords.latitude, coords.longitude);
+    }
+  }, [coords]);
 
   const getCurrentLocation = () => {
     setLoading(true);
@@ -87,7 +143,6 @@ const Settings = () => {
           longitude: position.coords.longitude,
         };
         setCoords(newCoords);
-        reverseGeocode(newCoords.latitude, newCoords.longitude);
       },
       (err) => {
         setError("Unable to retrieve your location");
@@ -99,6 +154,7 @@ const Settings = () => {
 
   const handleSave = () => {
     setEditMode(false);
+    // Here you would typically save the data to your backend
   };
 
   const handleInputChange = (e) => {
@@ -206,12 +262,14 @@ const Settings = () => {
                     className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm md:text-base"
                   />
                 ) : (
-                  <p className="px-3 py-2 md:px-4 md:py-3 bg-blue-50 rounded-lg text-blue-800 font-medium text-sm md:text-base">{userData.name}</p>
+                  <p className="px-3 py-2 md:px-4 md:py-3 bg-blue-50 rounded-lg text-blue-800 font-medium text-sm md:text-base">
+                    {userData.name || "Not available"}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <FaEnvelope className="mr-2 text-purple-500" /> Email
                 </label>
                 {editMode ? (
@@ -223,7 +281,9 @@ const Settings = () => {
                     className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm md:text-base"
                   />
                 ) : (
-                  <p className="px-3 py-2 md:px-4 md:py-3 bg-purple-50 rounded-lg text-purple-800 font-medium text-sm md:text-base">{userData.email}</p>
+                  <p className="px-3 py-2 md:px-4 md:py-3 bg-purple-50 rounded-lg text-purple-800 font-medium text-sm md:text-base">
+                    {userData.email || "Not available"}
+                  </p>
                 )}
               </div>
 
@@ -237,7 +297,7 @@ const Settings = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Member Since</label>
                 <p className="px-3 py-2 md:px-4 md:py-3 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg text-gray-700 font-medium text-sm md:text-base">
-                  January 2024
+                  {new Date(user?.createdAt).toLocaleString("en-US", { month: "long", year: "numeric" })}
                 </p>
               </div>
             </div>
@@ -269,6 +329,10 @@ const Settings = () => {
                   </div>
                 ) : error ? (
                   <p className="text-red-500 text-xs md:text-sm p-3 md:p-4 bg-red-50 rounded-lg border border-red-100">{error}</p>
+                ) : coords.latitude === 0 && coords.longitude === 0 ? (
+                  <p className="text-xs md:text-sm bg-gradient-to-r from-yellow-50 to-orange-50 p-3 md:p-4 rounded-lg border border-yellow-100">
+                    Location not set. Click "Use Current Location" to detect.
+                  </p>
                 ) : (
                   <p className="text-xs md:text-sm bg-gradient-to-r from-green-50 to-blue-50 p-3 md:p-4 rounded-lg border border-green-100">
                     {location}
@@ -281,22 +345,21 @@ const Settings = () => {
               <button
                 onClick={getCurrentLocation}
                 disabled={loading}
-                className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 disabled:opacity-50 flex items-center justify-center transition-all shadow-md hover:shadow-lg text-sm md:text-base"
+                className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 disabled:opacity-50 transition-all text-sm md:text-base flex items-center justify-center"
               >
                 <FaCrosshairs className="mr-2" />
-                {loading ? "Detecting..." : "Use Current Location"}
+                Use Current Location
               </button>
               
               <button
                 onClick={() => {
                   const newCoords = { latitude: 28.6139, longitude: 77.209 };
                   setCoords(newCoords);
-                  reverseGeocode(newCoords.latitude, newCoords.longitude);
                 }}
                 disabled={loading}
                 className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 rounded-lg hover:from-gray-300 hover:to-gray-400 disabled:opacity-50 transition-all text-sm md:text-base"
               >
-                Use Demo Location
+                Update Location
               </button>
             </div>
 
@@ -355,12 +418,26 @@ const Settings = () => {
         )}
 
         {/* Logout Button */}
-        <div className="mt-6 md:mt-8">
-          <button className="w-full px-4 py-3 md:px-6 md:py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl hover:from-red-600 hover:to-orange-600 flex items-center justify-center transition-all shadow-md hover:shadow-lg text-sm md:text-base">
-            <FaSignOutAlt className="mr-2 md:mr-3" />
-            Logout
-          </button>
-        </div>
+       <div className="mt-6 md:mt-8">
+  <button
+    onClick={handleLogout}
+    disabled={loggingOut}
+    className="w-full px-4 py-3 md:px-6 md:py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl flex items-center justify-center transition-all shadow-md hover:shadow-lg disabled:opacity-50 text-sm md:text-base"
+  >
+    {loggingOut ? (
+      <div className="flex items-center">
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+        Logging out...
+      </div>
+    ) : (
+      <>
+        <FaSignOutAlt className="mr-2 md:mr-3" />
+        Logout
+      </>
+    )}
+  </button>
+</div>
+
       </div>
     </div>
   );

@@ -35,7 +35,7 @@ const navItems = [
     label: "Verifications",
   },
   {
-    path: "/user/Rewards",
+    path: "/user/rewards",
     icon: <FaAward className="text-xl" />,
     label: "Rewards",
   },

@@ -13,6 +13,7 @@ import Issues from "./pages/Admin/Issues";
 import MyReports from "./pages/MyReports";
 import Verification from "./pages/Verification";
 import Settings from "./pages/Settings";
+import Rewards from "./pages/Rewards";
 const App = () => {
   return (
     <Router>
@@ -52,6 +53,7 @@ const App = () => {
             <Route path="my-issues" element={<MyReports/>} />
             <Route path="community-reports" element={<Verification/>} />
             <Route path="settings" element={<Settings/>} />
+            <Route path="rewards" element={<Rewards/>} />
         </Route>
 
 
