@@ -1,52 +1,29 @@
-// ProtectedRoute.jsx
 import { Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import api from "../api/axios";
 import useAuthStore from "../store/useAuthStore";
 import { useEffect } from "react";
 
 const fetchUser = async () => {
-   const { data } = await api.get("/auth/me", {
-    withCredentials: true, // ✅ send cookie
-  });
+  const { data } = await api.get("/auth/me");
   return data.user;
 };
 
 const ProtectedRoute = ({ children }) => {
-  const setUser = useAuthStore((state) => state.setUser); // Zustand setter
+  const setUser = useAuthStore((state) => state.setUser);
 
-  const {
-    data: user,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: user, isLoading, isError } = useQuery({
     queryKey: ["authUser"],
     queryFn: fetchUser,
     retry: false,
   });
 
-  // Set the user in Zustand when data is fetched
   useEffect(() => {
-    if (user) {
-      setUser(user);
-    }
+    if (user) setUser(user);
   }, [user, setUser]);
 
-if (isLoading) 
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="flex flex-col items-center">
-        <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin mb-4"></div>
-        <span className="text-blue-600 font-semibold text-lg">Loading...</span>
-      </div>
-    </div>
-  );
-
-
-  if (isError || !user) {
-    console.log('data nahi hai')
-    return <Navigate to="/" replace />;
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (isError || !user) return <Navigate to="/" replace />;
 
   return children;
 };
