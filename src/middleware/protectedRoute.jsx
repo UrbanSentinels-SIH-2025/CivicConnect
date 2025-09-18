@@ -22,7 +22,16 @@ const ProtectedRoute = ({ children }) => {
     if (user) setUser(user);
   }, [user, setUser]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="flex flex-col items-center">
+        <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin mb-4"></div>
+        <span className="text-blue-600 font-semibold text-lg">Loading...</span>
+      </div>
+    </div>
+  );
+
   if (isError || !user) return <Navigate to="/" replace />;
 
   return children;
