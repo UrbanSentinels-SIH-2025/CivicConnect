@@ -20,7 +20,7 @@ import {
   SiLightburn,
 } from "react-icons/si";
 import { memo } from "react";
-
+import { NavLink } from "react-router-dom";
 const HeroSection = memo(() => {
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -101,14 +101,15 @@ const HeroSection = memo(() => {
               transition={{ delay: 0.5 }}
               className="flex flex-col sm:flex-row gap-4 mb-12"
             >
-              <motion.a
-                href="#demo"
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
-                whileHover={{ scale: 1.07 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <RiDashboardLine className="mr-2" /> Login
-              </motion.a>
+             <NavLink
+  to="/login"
+  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+  whileHover={{ scale: 1.07 }}
+  whileTap={{ scale: 0.95 }}
+>
+  <RiDashboardLine className="mr-2" /> Login
+</NavLink>
+
               <motion.a
                 href="#code"
                 className="bg-white/90 backdrop-blur-md text-gray-900 px-6 py-3 rounded-full font-semibold text-base border border-gray-200 shadow-md hover:shadow-lg transition-all flex items-center justify-center"

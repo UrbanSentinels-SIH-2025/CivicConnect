@@ -23,7 +23,16 @@ const LandingGuard = ({ children }) => {
     checkAuth();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+if (loading) 
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="flex flex-col items-center">
+        <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin mb-4"></div>
+        <span className="text-blue-600 font-semibold text-lg">Loading...</span>
+      </div>
+    </div>
+  );
+
 
   return isAuthenticated ? <Navigate to="/user/dashboard" replace /> : children;
 };

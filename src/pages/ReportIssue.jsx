@@ -252,7 +252,7 @@ const ReportIssue = () => {
   }, []);
 
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-white rounded-xl shadow-xl">
+    <div className="max-w-7xl mx-auto p-6 bg-white  shadow-xl">
       <h2 className="text-3xl font-bold mb-6 text-center text-blue-700 bg-gradient-to-r from-blue-50 to-indigo-50 py-4 rounded-xl">Report an Issue</h2>
       
       <div className="grid md:grid-cols-2 gap-8">

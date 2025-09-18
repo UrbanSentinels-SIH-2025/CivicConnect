@@ -1,7 +1,7 @@
 import HeroSection from "../sections/homeSection/HeroSection";
 import ExecutiveSummary from "../sections/homeSection/ExecutiveSummary";
 import RoleDashboards from "../sections/homeSection/RoleDashboards";
-import WorkFlowSection from "../sections/homeSection/WorkFLowSection";
+import WorkFlowSection from "../sections/homeSection/WorkFlowSection";
 
 const Home = () => {
   return (

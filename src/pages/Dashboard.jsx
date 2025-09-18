@@ -1,5 +1,16 @@
 import React from 'react';
-import { FaFlag, FaCheckCircle, FaUsers, FaMedal } from 'react-icons/fa';
+import { 
+  FaFlag, 
+  FaCheckCircle, 
+  FaUsers, 
+  FaMedal, 
+  FaCamera, 
+  FaCheck, 
+  FaTimes, 
+  FaEye,
+  FaTrophy,
+  FaMapMarkerAlt
+} from 'react-icons/fa';
 
 const Dashboard = () => {
   // Sample data - replace with actual data from your API
@@ -74,35 +85,14 @@ const Dashboard = () => {
           {/* Quick Actions */}
           <div className="card mb-6">
             <h3 className="font-semibold text-lg mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="quick-action-btn">
-                <i className="fas fa-camera text-2xl text-blue-500 mb-2"></i>
+                <FaCamera className="text-2xl text-blue-500 mb-2" />
                 <span className="text-sm">Report Issue</span>
               </div>
               <div className="quick-action-btn">
-                <i className="fas fa-check-circle text-2xl text-green-500 mb-2"></i>
+                <FaCheckCircle className="text-2xl text-green-500 mb-2" />
                 <span className="text-sm">Verify Issues</span>
-              </div>
-              <div className="quick-action-btn">
-                <i className="fas fa-map-marked-alt text-2xl text-purple-500 mb-2"></i>
-                <span className="text-sm">View Map</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Issues Map */}
-          <div className="card mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg">Issues Near You</h3>
-              <button className="text-sm text-blue-600 font-medium">View All</button>
-            </div>
-            <div className="map-container">
-              <div className="text-center py-8">
-                <i className="fas fa-map-marker-alt text-3xl text-gray-400 mb-2"></i>
-                <p className="text-gray-500">Interactive map showing issues near your location</p>
-                <button className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">
-                  <i className="fas fa-location-arrow mr-1"></i> View Full Map
-                </button>
               </div>
             </div>
           </div>
@@ -126,13 +116,10 @@ const Dashboard = () => {
                 </div>
                 <div className="mt-3 flex items-center text-sm">
                   <div className="flex items-center mr-4">
-                    <i className="fas fa-check-circle text-green-500 mr-1"></i>
+                    <FaCheckCircle className="text-green-500 mr-1" />
                     <span>12 verifications</span>
                   </div>
-                  <div className="flex items-center">
-                    <i className="fas fa-eye mr-1 text-gray-500"></i>
-                    <span>45 views</span>
-                  </div>
+                 
                 </div>
               </div>
               
@@ -147,13 +134,10 @@ const Dashboard = () => {
                 </div>
                 <div className="mt-3 flex items-center text-sm">
                   <div className="flex items-center mr-4">
-                    <i className="fas fa-check-circle text-green-500 mr-1"></i>
+                    <FaCheckCircle className="text-green-500 mr-1" />
                     <span>23 verifications</span>
                   </div>
-                  <div className="flex items-center">
-                    <i className="fas fa-eye mr-1 text-gray-500"></i>
-                    <span>78 views</span>
-                  </div>
+                 
                 </div>
               </div>
             </div>
@@ -162,40 +146,6 @@ const Dashboard = () => {
 
         {/* Right Column - 1/3 width */}
         <div className="space-y-6">
-          {/* Notifications */}
-          <div className="card">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg">Notifications</h3>
-              <button className="text-sm text-blue-600 font-medium">Clear All</button>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="notification-item unread p-3 rounded-lg">
-                <div className="flex items-start">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
-                    <i className="fas fa-check-circle text-blue-500 text-sm"></i>
-                  </div>
-                  <div>
-                    <p className="text-sm">Your report <span className="font-medium">"Pothole on Main Road"</span> has been verified by 5 more citizens.</p>
-                    <p className="text-xs text-gray-500">30 minutes ago</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="notification-item p-3 rounded-lg">
-                <div className="flex items-start">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
-                    <i className="fas fa-truck text-green-500 text-sm"></i>
-                  </div>
-                  <div>
-                    <p className="text-sm">Municipal team has been dispatched to address <span className="font-medium">"Garbage Pileup in Sector 5"</span>.</p>
-                    <p className="text-xs text-gray-500">2 hours ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Verification Requests */}
           <div className="card">
             <div className="flex justify-between items-center mb-4">
@@ -212,10 +162,10 @@ const Dashboard = () => {
                   </div>
                   <div className="flex space-x-1">
                     <button className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
-                      <i className="fas fa-check text-green-600 text-xs"></i>
+                      <FaCheck className="text-green-600 text-xs" />
                     </button>
                     <button className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center">
-                      <i className="fas fa-times text-red-600 text-xs"></i>
+                      <FaTimes className="text-red-600 text-xs" />
                     </button>
                   </div>
                 </div>
@@ -229,10 +179,10 @@ const Dashboard = () => {
                   </div>
                   <div className="flex space-x-1">
                     <button className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
-                      <i className="fas fa-check text-green-600 text-xs"></i>
+                      <FaCheck className="text-green-600 text-xs" />
                     </button>
                     <button className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center">
-                      <i className="fas fa-times text-red-600 text-xs"></i>
+                      <FaTimes className="text-red-600 text-xs" />
                     </button>
                   </div>
                 </div>
@@ -250,21 +200,21 @@ const Dashboard = () => {
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col items-center p-2 bg-blue-50 rounded-lg">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-1">
-                  <i className="fas fa-check-circle text-blue-600"></i>
+                  <FaCheckCircle className="text-blue-600" />
                 </div>
                 <p className="text-xs text-center">Verifier</p>
               </div>
               
               <div className="flex flex-col items-center p-2 bg-yellow-50 rounded-lg">
                 <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mb-1">
-                  <i className="fas fa-medal text-yellow-600"></i>
+                  <FaMedal className="text-yellow-600" />
                 </div>
                 <p className="text-xs text-center">First Report</p>
               </div>
               
               <div className="flex flex-col items-center p-2 bg-green-50 rounded-lg">
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-1">
-                  <i className="fas fa-trophy text-green-600"></i>
+                  <FaTrophy className="text-green-600" />
                 </div>
                 <p className="text-xs text-center">Champion</p>
               </div>

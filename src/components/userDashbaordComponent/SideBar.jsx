@@ -9,7 +9,8 @@ import {
   FaCheckCircle, 
   FaAward,
   FaCity ,
-    FaUser
+    FaUser,
+    FaCog
 } from 'react-icons/fa';
 
 const navItems = [
@@ -18,12 +19,18 @@ const navItems = [
   { path: '/user/my-issues', icon: <FaListAlt className="text-xl" />, label: 'Track Issue' },
   { path: '/user/community-reports', icon: <FaCheckCircle className="text-xl" />, label: 'Verifications' },
   { path: '/user/Rewards', icon: <FaAward className="text-xl" />, label: 'Rewards' },
+  { path: '/user/Settings', icon: <FaCog className="text-xl" />, label: 'Settings' },
 ];
 
+
+import useAuthStore from '../../store/useAuthStore';
 const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 640;
-  
+
+const user = useAuthStore((state) => state.user);
+console.log('User data: ', user);
+
   useEffect(()=>{
     onMenuClick()
   },[])
@@ -60,10 +67,10 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
         >
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-              <FaUser className="text-blue-600 text-sm" />
+              <img src={user.picture} className='rounded-3xl' alt="" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Ankeet Kumar Sah</h3>
+              <h3 className="font-semibold text-sm">{user.name}</h3>
               <p className="text-xs text-gray-500">Trust Score: 87%</p>
             </div>
           </div>

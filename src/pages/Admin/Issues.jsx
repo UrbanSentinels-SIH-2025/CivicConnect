@@ -292,6 +292,7 @@ const RecenterButton = ({ onClick }) => {
 };
 
 // Custom Map Component using Leaflet
+// Custom Map Component using Leaflet
 const CustomMap = ({ issues, selectedIssue, onMarkerClick, onRecenter }) => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -305,12 +306,11 @@ const CustomMap = ({ issues, selectedIssue, onMarkerClick, onRecenter }) => {
         14
       );
 
-      // Google-like tile layer
-      L.tileLayer("https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}", {
+      // Google Satellite with labels tile layer
+      L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
         maxZoom: 20,
-        subdomains: ["mt0", "mt1", "mt2", "mt3"],
-        attribution:
-          '&copy; <a href="https://www.google.com/maps">Google Maps</a>',
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '&copy; Google Maps'
       }).addTo(mapInstanceRef.current);
     }
 
@@ -592,34 +592,61 @@ export default function AdminIssues() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-700">
-              Total Issues
-            </h3>
-            <p className="text-3xl font-bold text-blue-600">
-              {issuesData.length}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-700">Pending</h3>
-            <p className="text-3xl font-bold text-yellow-600">
-              {countByStatus("Pending")}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-700">In Progress</h3>
-            <p className="text-3xl font-bold text-blue-600">
-              {countByStatus("In Progress")}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-700">Resolved</h3>
-            <p className="text-3xl font-bold text-green-600">
-              {countByStatus("Resolved")}
-            </p>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  {/* Total Issues */}
+  <div className="rounded-lg shadow-md p-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg transition">
+    <div className="flex items-center justify-between">
+      <h3 className="text-sm font-medium uppercase tracking-wide opacity-90">
+        Total Issues
+      </h3>
+      <div className="bg-white/20 p-2 rounded-full">
+        📊
+      </div>
+    </div>
+    <p className="text-3xl font-extrabold mt-2">{issuesData.length}</p>
+  </div>
+
+  {/* Pending */}
+  <div className="rounded-lg shadow-md p-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black hover:shadow-lg transition">
+    <div className="flex items-center justify-between">
+      <h3 className="text-sm font-medium uppercase tracking-wide opacity-90">
+        Pending
+      </h3>
+      <div className="bg-black/10 p-2 rounded-full">
+        ⏳
+      </div>
+    </div>
+    <p className="text-3xl font-extrabold mt-2">{countByStatus("Pending")}</p>
+  </div>
+
+  {/* In Progress */}
+  <div className="rounded-lg shadow-md p-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-white hover:shadow-lg transition">
+    <div className="flex items-center justify-between">
+      <h3 className="text-sm font-medium uppercase tracking-wide opacity-90">
+        In Progress
+      </h3>
+      <div className="bg-white/20 p-2 rounded-full">
+        ⚡
+      </div>
+    </div>
+    <p className="text-3xl font-extrabold mt-2">{countByStatus("In Progress")}</p>
+  </div>
+
+  {/* Resolved */}
+  <div className="rounded-lg shadow-md p-4 bg-gradient-to-r from-green-400 to-emerald-600 text-white hover:shadow-lg transition">
+    <div className="flex items-center justify-between">
+      <h3 className="text-sm font-medium uppercase tracking-wide opacity-90">
+        Resolved
+      </h3>
+      <div className="bg-white/20 p-2 rounded-full">
+        ✅
+      </div>
+    </div>
+    <p className="text-3xl font-extrabold mt-2">{countByStatus("Resolved")}</p>
+  </div>
+</div>
+
+
 
         <FilterBar
           filters={filters}
