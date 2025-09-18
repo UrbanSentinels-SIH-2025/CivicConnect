@@ -157,15 +157,13 @@ const Header = () => {
                   </motion.a>
                 ))}
 
-                <motion.button
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 rounded-xl font-medium shadow-lg mt-4 flex items-center justify-center relative z-10"
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                >
-                  Login <RiArrowRightUpLine className="ml-1" />
-                </motion.button>
+                <NavLink
+  to="/login"
+  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 rounded-xl font-medium shadow-lg mt-4 flex items-center justify-center relative z-10"
+>
+  Login <RiArrowRightUpLine className="ml-1" />
+</NavLink>
+               
               </div>
             </motion.div>
           )}
