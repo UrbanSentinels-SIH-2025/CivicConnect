@@ -1,5 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaFlag, FaCheckCircle, FaUsers, FaMedal, FaFilter, FaSort, FaSearch, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaPlay, FaClock, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import { 
+  FaFlag, 
+  FaCheckCircle, 
+  FaUsers, 
+  FaMedal, 
+  FaFilter, 
+  FaSort, 
+  FaSearch, 
+  FaEye, 
+  FaMapMarkerAlt, 
+  FaCalendarAlt, 
+  FaTimes, 
+  FaPlay, 
+  FaClock, 
+  FaCheck, 
+  FaExclamationTriangle,
+  FaVideo,
+  FaThumbsUp
+} from 'react-icons/fa';
 import api from "../api/axios.js"
 
 const MyReports = () => {
@@ -224,7 +242,7 @@ const MyReports = () => {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+      <div className="p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading your reports...</p>
@@ -235,13 +253,13 @@ const MyReports = () => {
 
   if (error) {
     return (
-      <div className="p-4 md:p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+      <div className="p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-4xl mb-4">⚠️</div>
           <h2 className="text-xl font-semibold text-gray-800">Error Loading Reports</h2>
           <p className="text-gray-600 mt-2">{error}</p>
           <button 
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
             onClick={() => window.location.reload()}
           >
             Try Again
@@ -252,7 +270,7 @@ const MyReports = () => {
   }
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Your Video Reports</h1>
@@ -260,62 +278,62 @@ const MyReports = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
-              <FaFlag className="text-blue-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Reports</p>
-              <h3 className="text-2xl font-bold">{reports.length}</h3>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Reports */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow p-4 flex items-center text-white">
+          <div className="rounded-full bg-white/20 p-3 mr-4">
+            <FaFlag className="text-white text-xl" />
+          </div>
+          <div>
+            <p className="text-sm opacity-80">Total Reports</p>
+            <p className="text-2xl font-bold">{reports.length}</p>
+            <p className="text-xs opacity-80 mt-1">Your contributions</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-yellow-500">
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-lg bg-yellow-100 flex items-center justify-center mr-4">
-              <FaExclamationTriangle className="text-yellow-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">In Progress</p>
-              <h3 className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "In Progress").length}</h3>
-            </div>
+        {/* In Progress */}
+        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow p-4 flex items-center text-white">
+          <div className="rounded-full bg-white/20 p-3 mr-4">
+            <FaExclamationTriangle className="text-white text-xl" />
+          </div>
+          <div>
+            <p className="text-sm opacity-80">In Progress</p>
+            <p className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "In Progress").length}</p>
+            <p className="text-xs opacity-80 mt-1">Being addressed</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4">
-              <FaCheckCircle className="text-green-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Resolved</p>
-              <h3 className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "Resolved").length}</h3>
-            </div>
+        {/* Resolved */}
+        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow p-4 flex items-center text-white">
+          <div className="rounded-full bg-white/20 p-3 mr-4">
+            <FaCheckCircle className="text-white text-xl" />
+          </div>
+          <div>
+            <p className="text-sm opacity-80">Resolved</p>
+            <p className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "Resolved").length}</p>
+            <p className="text-xs opacity-80 mt-1">Successfully fixed</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500">
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center mr-4">
-              <FaUsers className="text-purple-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Avg. Verifications</p>
-              <h3 className="text-2xl font-bold">
-                {reports.length > 0 
-                  ? Math.round(reportsWithStatus.reduce((sum, report) => sum + report.verifications, 0) / reports.length)
-                  : 0}
-              </h3>
-            </div>
+        {/* Avg. Verifications */}
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow p-4 flex items-center text-white">
+          <div className="rounded-full bg-white/20 p-3 mr-4">
+            <FaUsers className="text-white text-xl" />
+          </div>
+          <div>
+            <p className="text-sm opacity-80">Avg. Verifications</p>
+            <p className="text-2xl font-bold">
+              {reports.length > 0 
+                ? Math.round(reportsWithStatus.reduce((sum, report) => sum + report.verifications, 0) / reports.length)
+                : 0}
+            </p>
+            <p className="text-xs opacity-80 mt-1">Community support</p>
           </div>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -361,11 +379,10 @@ const MyReports = () => {
             >
               <option value="date">Sort by Date</option>
               <option value="verifications">Sort by Verifications</option>
-             
             </select>
             
             <button 
-              className="border border-gray-300 rounded-lg px-3 py-2 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="border border-gray-300 rounded-lg px-3 py-2 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm hover:bg-gray-50 transition"
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             >
               <FaSort className="mr-1" />
@@ -374,13 +391,13 @@ const MyReports = () => {
             
             <div className="flex border border-gray-300 rounded-lg overflow-hidden">
               <button 
-                className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'bg-white'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'bg-white hover:bg-gray-50'} transition`}
                 onClick={() => setViewMode('list')}
               >
                 List
               </button>
               <button 
-                className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'bg-white'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'bg-white hover:bg-gray-50'} transition`}
                 onClick={() => setViewMode('grid')}
               >
                 Grid
@@ -393,7 +410,7 @@ const MyReports = () => {
       {/* Reports List */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold text-gray-800">
             {reportsWithStatus.length} Report{reportsWithStatus.length !== 1 ? 's' : ''} Found
           </h2>
         </div>
@@ -404,7 +421,7 @@ const MyReports = () => {
             {reportsWithStatus.map(report => (
               <div 
                 key={report._id} 
-                className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-shadow"
+                className="bg-gradient-to-r from-white to-blue-50 rounded-xl shadow-lg p-4 border-l-4 border-blue-500 cursor-pointer hover:shadow-xl transition-all"
                 onClick={() => setSelectedReport(report)}
               >
                 <div className="flex flex-col md:flex-row gap-4">
@@ -445,7 +462,6 @@ const MyReports = () => {
                         <FaCheckCircle className="text-green-500 mr-1" />
                         <span>{report.verifications} verifications</span>
                       </div>
-                     
                     </div>
 
                     {/* Progress Tracker */}
@@ -457,11 +473,11 @@ const MyReports = () => {
           </div>
         ) : (
           /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {reportsWithStatus.map(report => (
               <div 
                 key={report._id} 
-                className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow flex flex-col"
+                className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all flex flex-col"
                 onClick={() => setSelectedReport(report)}
               >
                 {/* Video Thumbnail/Player */}
@@ -533,7 +549,7 @@ const MyReports = () => {
         )}
 
         {reportsWithStatus.length === 0 && (
-          <div className="text-center py-10 bg-white rounded-lg shadow-sm">
+          <div className="text-center py-10 bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg">
             <FaFilter className="text-4xl text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-gray-500">No reports found</h3>
             <p className="text-gray-400">Try adjusting your filters or search term</p>
@@ -544,12 +560,12 @@ const MyReports = () => {
       {/* Report Detail Modal */}
       {selectedReport && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-70 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="bg-gradient-to-b from-white to-blue-50 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-bold text-gray-800">{selectedReport.title}</h2>
                 <button 
-                  className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
+                  className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition"
                   onClick={() => setSelectedReport(null)}
                 >
                   <FaTimes className="text-xl" />
@@ -566,39 +582,37 @@ const MyReports = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Status</h3>
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-medium text-blue-500 mb-1">Status</h3>
                   <p className={`px-3 py-1 rounded-full text-sm inline-block ${statusColors[selectedReport.status]}`}>
                     {selectedReport.status}
                   </p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Category</h3>
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-medium text-blue-500 mb-1">Category</h3>
                   <p className="font-medium">{selectedReport.category}</p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Date Reported</h3>
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-medium text-blue-500 mb-1">Date Reported</h3>
                   <p className="font-medium">{formatDate(selectedReport.createdAt)}</p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Location</h3>
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-medium text-blue-500 mb-1">Location</h3>
                   <p className="font-medium">{getDistanceFromLocation(selectedReport.location.latitude, selectedReport.location.longitude)}</p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Verifications</h3>
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <h3 className="text-sm font-medium text-blue-500 mb-1">Verifications</h3>
                   <p className="font-medium">{selectedReport.verifications}</p>
                 </div>
-                
-                
               </div>
 
               {/* Progress Tracker in Modal */}
-              <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Issue Progress</h3>
+              <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                <h3 className="text-sm font-medium text-blue-500 mb-3">Issue Progress</h3>
                 <ProgressTracker report={selectedReport} />
               </div>
             </div>

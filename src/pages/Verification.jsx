@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheckCircle, FaTimesCircle, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaFilter, FaSort, FaSearch, FaPlay, FaCheck, FaExclamationTriangle, FaClock, FaThumbsUp, FaBan } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaFilter, FaSort, FaSearch, FaPlay, FaCheck, FaExclamationTriangle, FaClock, FaThumbsUp, FaBan, FaUsers, FaFlag, FaExclamation } from 'react-icons/fa';
 
 const Verification = () => {
   // Static data for demonstration
   const staticReports = [
     {
       _id: "68cae59745c44f4e96974323",
-      title: "Street – 17 Sept 2025, 22:15",
+      title: "Pothole on Main Street",
       category: "Street",
       videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758127512/report-videos/tbtczvo7i4f6hlu2bicn.webm",
       thumbnail: "https://i.imgur.com/7S7qz6g.jpeg",
@@ -42,7 +42,7 @@ const Verification = () => {
     },
     {
       _id: "68cae5ca45c44f4e96974326",
-      title: "Water – 17 Sept 2025, 22:15",
+      title: "Water Leakage in Park Area",
       category: "Water",
       videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758127562/report-videos/rfgmqlewjrm7w2hgqd27.webm",
       thumbnail: "https://i.imgur.com/7S7qz6g.jpeg",
@@ -78,7 +78,7 @@ const Verification = () => {
     },
     {
       _id: "68cae5ca45c44f4e96974327",
-      title: "Electricity – 17 Sept 2025, 22:20",
+      title: "Streetlight Outage in Sector 5",
       category: "Electricity",
       videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758127562/report-videos/sample-electricity.webm",
       thumbnail: "https://i.imgur.com/7S7qz6g.jpeg",
@@ -290,7 +290,7 @@ const Verification = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Community Issues Verification</h1>
@@ -298,62 +298,62 @@ const Verification = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
-              <FaCheckCircle className="text-blue-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Issues</p>
-              <h3 className="text-2xl font-bold">{reports.length}</h3>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Issues */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow p-4 flex items-center text-white">
+          <div className="rounded-full bg-white/20 p-3 mr-4">
+            <FaFlag className="text-white text-xl" />
+          </div>
+          <div>
+            <p className="text-sm opacity-80">Total Issues</p>
+            <p className="text-2xl font-bold">{reports.length}</p>
+            <p className="text-xs opacity-80 mt-1">Needing attention</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-yellow-500">
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-lg bg-yellow-100 flex items-center justify-center mr-4">
-              <FaExclamationTriangle className="text-yellow-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Pending Verification</p>
-              <h3 className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "Pending").length}</h3>
-            </div>
+        {/* Pending Verification */}
+        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow p-4 flex items-center text-white">
+          <div className="rounded-full bg-white/20 p-3 mr-4">
+            <FaExclamationTriangle className="text-white text-xl" />
+          </div>
+          <div>
+            <p className="text-sm opacity-80">Pending Verification</p>
+            <p className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "Pending").length}</p>
+            <p className="text-xs opacity-80 mt-1">Awaiting review</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4">
-              <FaCheck className="text-green-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Verified Issues</p>
-              <h3 className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "Verified").length}</h3>
-            </div>
+        {/* Verified Issues */}
+        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow p-4 flex items-center text-white">
+          <div className="rounded-full bg-white/20 p-3 mr-4">
+            <FaCheckCircle className="text-white text-xl" />
+          </div>
+          <div>
+            <p className="text-sm opacity-80">Verified Issues</p>
+            <p className="text-2xl font-bold">{reportsWithStatus.filter(r => r.status === "Verified").length}</p>
+            <p className="text-xs opacity-80 mt-1">Confirmed by community</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500">
-          <div className="flex items-center">
-            <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center mr-4">
-              <FaEye className="text-purple-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Avg. Verifications</p>
-              <h3 className="text-2xl font-bold">
-                {reports.length > 0 
-                  ? Math.round(reportsWithStatus.reduce((sum, report) => sum + report.verifications, 0) / reports.length)
-                  : 0}
-              </h3>
-            </div>
+        {/* Avg. Verifications */}
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow p-4 flex items-center text-white">
+          <div className="rounded-full bg-white/20 p-3 mr-4">
+            <FaUsers className="text-white text-xl" />
+          </div>
+          <div>
+            <p className="text-sm opacity-80">Avg. Verifications</p>
+            <p className="text-2xl font-bold">
+              {reports.length > 0 
+                ? Math.round(reportsWithStatus.reduce((sum, report) => sum + report.verifications, 0) / reports.length)
+                : 0}
+            </p>
+            <p className="text-xs opacity-80 mt-1">Community engagement</p>
           </div>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -402,7 +402,7 @@ const Verification = () => {
             </select>
             
             <button 
-              className="border border-gray-300 rounded-lg px-3 py-2 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="border border-gray-300 rounded-lg px-3 py-2 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm hover:bg-gray-50 transition"
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             >
               <FaSort className="mr-1" />
@@ -411,13 +411,13 @@ const Verification = () => {
             
             <div className="flex border border-gray-300 rounded-lg overflow-hidden">
               <button 
-                className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'bg-white'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'bg-white hover:bg-gray-50'} transition`}
                 onClick={() => setViewMode('list')}
               >
                 List
               </button>
               <button 
-                className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'bg-white'}`}
+                className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'bg-white hover:bg-gray-50'} transition`}
                 onClick={() => setViewMode('grid')}
               >
                 Grid
@@ -430,7 +430,7 @@ const Verification = () => {
       {/* Reports List */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold text-gray-800">
             {reportsWithStatus.length} Issue{reportsWithStatus.length !== 1 ? 's' : ''} Found
           </h2>
         </div>
@@ -441,7 +441,7 @@ const Verification = () => {
             {reportsWithStatus.map(report => (
               <div 
                 key={report._id} 
-                className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500 hover:shadow-md transition-shadow"
+                className="bg-gradient-to-r from-white to-blue-50 rounded-xl shadow-lg p-4 border-l-4 border-blue-500 hover:shadow-xl transition-all"
               >
                 <div className="flex flex-col md:flex-row gap-4">
                   {/* Video Thumbnail/Player */}
@@ -517,11 +517,11 @@ const Verification = () => {
           </div>
         ) : (
           /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {reportsWithStatus.map(report => (
               <div 
                 key={report._id} 
-                className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
+                className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all flex flex-col"
               >
                 {/* Video Thumbnail/Player */}
                 <div className="relative h-48">
@@ -591,7 +591,7 @@ const Verification = () => {
         )}
 
         {reportsWithStatus.length === 0 && (
-          <div className="text-center py-10 bg-white rounded-lg shadow-sm">
+          <div className="text-center py-10 bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg">
             <FaFilter className="text-4xl text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-gray-500">No issues found</h3>
             <p className="text-gray-400">Try adjusting your filters or search term</p>

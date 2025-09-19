@@ -348,19 +348,45 @@ const handleLogout = async () => {
                 className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 disabled:opacity-50 transition-all text-sm md:text-base flex items-center justify-center"
               >
                 <FaCrosshairs className="mr-2" />
-                Use Current Location
+                get Current Location
               </button>
               
-              <button
-                onClick={() => {
-                  const newCoords = { latitude: 28.6139, longitude: 77.209 };
-                  setCoords(newCoords);
-                }}
-                disabled={loading}
-                className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 rounded-lg hover:from-gray-300 hover:to-gray-400 disabled:opacity-50 transition-all text-sm md:text-base"
-              >
-                Update Location
-              </button>
+             <button
+  onClick={async () => {
+    try {
+      setLoading(true);
+      const payload = {
+        lat: coords.latitude,
+        lng: coords.longitude,
+      };
+
+      // Call backend to update user location
+      const response = await api.patch("/user-issue/update-location", payload, {
+        withCredentials: true,
+      });
+
+      console.log("Location updated:", response.data);
+
+      // ✅ Re-fetch user data into Zustand store
+      const { data: refreshedUser } = await api.get("/auth/me", {
+        withCredentials: true,
+      });
+      useAuthStore.getState().setUser(refreshedUser.user);
+
+      setError("");
+    } catch (err) {
+      console.error("Update location error:", err.response?.data || err.message);
+      setError("Failed to update location");
+    } finally {
+      setLoading(false);
+    }
+  }}
+  disabled={loading}
+  className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 rounded-lg hover:from-gray-300 hover:to-gray-400 disabled:opacity-50 transition-all text-sm md:text-base"
+>
+  Update Location
+</button>
+
             </div>
 
             <p className="text-xs md:text-sm text-gray-500 bg-gray-50 p-3 rounded-lg border border-gray-200">

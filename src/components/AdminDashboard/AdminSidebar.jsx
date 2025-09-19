@@ -23,10 +23,7 @@ const adminNavItems = [
   { path: '/admin/issues', icon: <FaExclamationTriangle className="text-xl" />, label: 'All Issues' },
   { path: '/admin/departments', icon: <FaBuilding className="text-xl" />, label: 'Departments' },
   { path: '/admin/analytics', icon: <FaChartBar className="text-xl" />, label: 'Analytics' },
-  { path: '/admin/users', icon: <FaUsers className="text-xl" />, label: 'User Management' },
-  { path: '/admin/verifications', icon: <FaCheckCircle className="text-xl" />, label: 'Verifications' },
-  { path: '/admin/reports', icon: <FaClipboardList className="text-xl" />, label: 'Reports' },
-  { path: '/admin/settings', icon: <FaCog className="text-xl" />, label: 'Settings' },
+  { path: '/admin/user-management', icon: <FaChartBar className="text-xl" />, label: 'User Management' },
 ];
 
 const AdminSidebar = ({ isSidebarOpen, onMenuClick }) => {

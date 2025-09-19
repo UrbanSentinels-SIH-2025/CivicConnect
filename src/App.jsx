@@ -14,6 +14,9 @@ import MyReports from "./pages/MyReports";
 import Verification from "./pages/Verification";
 import Settings from "./pages/Settings";
 import Rewards from "./pages/Rewards";
+import Departments from "./pages/Admin/Departments";
+import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
+import UserManagement from "./pages/Admin/UserManagment";
 const App = () => {
   return (
     <Router>
@@ -71,6 +74,9 @@ const App = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           {/* Explicit path for /admin/profile */}
           <Route path="issues" element={<Issues/>} />
+          <Route path="departments" element={<Departments/>} />
+          <Route path="analytics" element={<AnalyticsDashboard/>} />
+          <Route path="user-management" element={<UserManagement/>} />
         
         </Route>
 
