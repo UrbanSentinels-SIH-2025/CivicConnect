@@ -1,121 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaTimesCircle, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaFilter, FaSort, FaSearch, FaPlay, FaCheck, FaExclamationTriangle, FaClock, FaThumbsUp, FaBan, FaUsers, FaFlag, FaExclamation } from 'react-icons/fa';
+import api from '../api/axios';
 
 const Verification = () => {
-  // Static data for demonstration
-  const staticReports = [
-    {
-      _id: "68cae59745c44f4e96974323",
-      title: "Pothole on Main Street",
-      category: "Street",
-      videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758127512/report-videos/tbtczvo7i4f6hlu2bicn.webm",
-      thumbnail: "https://i.imgur.com/7S7qz6g.jpeg",
-      verifications: 4,
-      createdBy: {
-        _id: "68c8223bddbfa54bbe17c0c5",
-        name: "ANKEET KUMAR SAH",
-        email: "ankeetkumar7777@gmail.com"
-      },
-      progress: {
-        reported: {
-          completed: true,
-          date: "2025-09-17T16:45:11.392Z"
-        },
-        verified: {
-          date: null,
-          completed: false
-        },
-        inProgress: {
-          date: null,
-          completed: false
-        },
-        resolved: {
-          date: null,
-          completed: false
-        }
-      },
-      createdAt: "2025-09-17T16:45:11.409Z",
-      location: {
-        latitude: 19.04851386419611,
-        longitude: 83.83460154796187
-      }
-    },
-    {
-      _id: "68cae5ca45c44f4e96974326",
-      title: "Water Leakage in Park Area",
-      category: "Water",
-      videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758127562/report-videos/rfgmqlewjrm7w2hgqd27.webm",
-      thumbnail: "https://i.imgur.com/7S7qz6g.jpeg",
-      verifications: 0,
-      createdBy: {
-        _id: "68c8223bddbfa54bbe17c0c5",
-        name: "RAHUL SHARMA",
-        email: "rahul@example.com"
-      },
-      progress: {
-        reported: {
-          completed: false,
-          date: "2025-09-17T16:46:02.134Z"
-        },
-        verified: {
-          date: null,
-          completed: false
-        },
-        inProgress: {
-          date: null,
-          completed: false
-        },
-        resolved: {
-          date: null,
-          completed: false
-        }
-      },
-      createdAt: "2025-09-17T16:46:02.135Z",
-      location: {
-        latitude: 19.04851386419611,
-        longitude: 83.83460154796187
-      }
-    },
-    {
-      _id: "68cae5ca45c44f4e96974327",
-      title: "Streetlight Outage in Sector 5",
-      category: "Electricity",
-      videoUrl: "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758127562/report-videos/sample-electricity.webm",
-      thumbnail: "https://i.imgur.com/7S7qz6g.jpeg",
-      verifications: 8,
-      createdBy: {
-        _id: "68c8223bddbfa54bbe17c0c6",
-        name: "PRIYA PATEL",
-        email: "priya@example.com"
-      },
-      progress: {
-        reported: {
-          completed: true,
-          date: "2025-09-17T16:50:02.134Z"
-        },
-        verified: {
-          date: "2025-09-18T10:30:00.000Z",
-          completed: true
-        },
-        inProgress: {
-          date: null,
-          completed: false
-        },
-        resolved: {
-          date: null,
-          completed: false
-        }
-      },
-      createdAt: "2025-09-17T16:50:02.135Z",
-      location: {
-        latitude: 19.05851386419611,
-        longitude: 83.84460154796187
-      }
-    }
-  ];
-
-  const [reports, setReports] = useState(staticReports);
-  const [filteredReports, setFilteredReports] = useState(staticReports);
+  const [issues, setIssues] = useState([]);
+  const [filteredReports, setFilteredReports] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -126,30 +15,46 @@ const Verification = () => {
   const [playingVideo, setPlayingVideo] = useState(null);
   const [verifying, setVerifying] = useState(false);
 
-  // Get unique categories from reports
-  const categories = [...new Set(reports.map(report => report.category))];
-
-  // Filter and sort reports based on user selection
   useEffect(() => {
-    let result = [...reports];
+    const fetchMyIssues = async () => {
+      try {
+        const { data } = await api.get("/user-issue/my-issues", {
+          withCredentials: true,
+        });
+        console.log("Fetched My Issues:", data);
+        setIssues(data);
+      } catch (err) {
+        console.error("Error fetching my-issues:", err);
+      }
+    };
+
+    fetchMyIssues();
+  }, []);
+
+  // Get unique categories from issues
+  const categories = [...new Set(issues.map(issue => issue.category))];
+
+  // Filter and sort issues based on user selection
+  useEffect(() => {
+    let result = [...issues];
     
     if (searchTerm) {
-      result = result.filter(report => 
-        report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        report.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        report.createdBy.name.toLowerCase().includes(searchTerm.toLowerCase())
+      result = result.filter(issue => 
+        issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (issue.category && issue.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (issue.createdBy && issue.createdBy.name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
     if (statusFilter !== "All") {
-      result = result.filter(report => {
-        const status = getStatusFromProgress(report.progress);
+      result = result.filter(issue => {
+        const status = getStatusFromProgress(issue.progress);
         return status === statusFilter;
       });
     }
     
     if (categoryFilter !== "All") {
-      result = result.filter(report => report.category === categoryFilter);
+      result = result.filter(issue => issue.category === categoryFilter);
     }
     
     result.sort((a, b) => {
@@ -164,20 +69,21 @@ const Verification = () => {
     });
     
     setFilteredReports(result);
-  }, [searchTerm, statusFilter, categoryFilter, sortBy, sortOrder, reports]);
+  }, [searchTerm, statusFilter, categoryFilter, sortBy, sortOrder, issues]);
 
   // Determine status based on progress
   const getStatusFromProgress = (progress) => {
-    if (progress.resolved.completed) return "Resolved";
-    if (progress.inProgress.completed) return "In Progress";
-    if (progress.verified.completed) return "Verified";
+    if (!progress) return "Pending";
+    if (progress.resolved && progress.resolved.completed) return "Resolved";
+    if (progress.inProgress && progress.inProgress.completed) return "In Progress";
+    if (progress.verified && progress.verified.completed) return "Verified";
     return "Pending";
   };
 
-  // Add status to each report based on progress
-  const reportsWithStatus = filteredReports.map(report => ({
-    ...report,
-    status: getStatusFromProgress(report.progress),
+  // Add status to each issue based on progress
+  const reportsWithStatus = filteredReports.map(issue => ({
+    ...issue,
+    status: getStatusFromProgress(issue.progress),
     views: Math.floor(Math.random() * 100) // Add random views for demo
   }));
 
@@ -195,9 +101,9 @@ const Verification = () => {
     "Resolved": <FaCheckCircle className="text-green-500" />
   };
 
-  const handleVideoClick = (e, reportId) => {
+  const handleVideoClick = (e, issueId) => {
     e.stopPropagation();
-    setPlayingVideo(playingVideo === reportId ? null : reportId);
+    setPlayingVideo(playingVideo === issueId ? null : issueId);
   };
 
   const formatDate = (dateString) => {
@@ -218,18 +124,18 @@ const Verification = () => {
   };
 
   // Handle verification (endorse) action
-  const handleVerify = async (reportId) => {
+  const handleVerify = async (issueId) => {
     setVerifying(true);
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Update the report's verification count
-      setReports(prevReports => 
-        prevReports.map(report => 
-          report._id === reportId 
-            ? { ...report, verifications: report.verifications + 1 }
-            : report
+      // Update the issue's verification count
+      setIssues(prevIssues => 
+        prevIssues.map(issue => 
+          issue._id === issueId 
+            ? { ...issue, verifications: issue.verifications + 1 }
+            : issue
         )
       );
       
@@ -243,14 +149,14 @@ const Verification = () => {
   };
 
   // Handle mark as fake action
-  const handleMarkAsFake = async (reportId) => {
+  const handleMarkAsFake = async (issueId) => {
     setVerifying(true);
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Remove the report from the list
-      setReports(prevReports => prevReports.filter(report => report._id !== reportId));
+      // Remove the issue from the list
+      setIssues(prevIssues => prevIssues.filter(issue => issue._id !== issueId));
       
       alert("Issue marked as fake and removed from list!");
     } catch (error) {
@@ -262,12 +168,12 @@ const Verification = () => {
   };
 
   // Video Thumbnail Component
-  const VideoThumbnail = ({ report, isPlaying, onClick }) => {
+  const VideoThumbnail = ({ issue, isPlaying, onClick }) => {
     return (
       <div className="relative w-full h-full group">
         {isPlaying ? (
           <video 
-            src={report.videoUrl} 
+            src={issue.videoUrl} 
             controls 
             className="w-full h-full object-cover rounded-lg"
             onClick={(e) => e.stopPropagation()}
@@ -275,7 +181,7 @@ const Verification = () => {
         ) : (
           <div 
             className="w-full h-full bg-cover bg-center rounded-lg transition-all duration-300 group-hover:brightness-90"
-            style={{ backgroundImage: `url(${report.thumbnail})` }}
+            style={{ backgroundImage: `url(${issue.thumbnail})` }}
             onClick={onClick}
           >
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
@@ -306,7 +212,7 @@ const Verification = () => {
           </div>
           <div>
             <p className="text-sm opacity-80">Total Issues</p>
-            <p className="text-2xl font-bold">{reports.length}</p>
+            <p className="text-2xl font-bold">{issues.length}</p>
             <p className="text-xs opacity-80 mt-1">Needing attention</p>
           </div>
         </div>
@@ -343,8 +249,8 @@ const Verification = () => {
           <div>
             <p className="text-sm opacity-80">Avg. Verifications</p>
             <p className="text-2xl font-bold">
-              {reports.length > 0 
-                ? Math.round(reportsWithStatus.reduce((sum, report) => sum + report.verifications, 0) / reports.length)
+              {issues.length > 0 
+                ? Math.round(reportsWithStatus.reduce((sum, issue) => sum + (issue.verifications || 0), 0) / issues.length)
                 : 0}
             </p>
             <p className="text-xs opacity-80 mt-1">Community engagement</p>
@@ -438,63 +344,63 @@ const Verification = () => {
         {viewMode === 'list' ? (
           /* List View */
           <div className="space-y-4">
-            {reportsWithStatus.map(report => (
+            {reportsWithStatus.map(issue => (
               <div 
-                key={report._id} 
+                key={issue._id} 
                 className="bg-gradient-to-r from-white to-blue-50 rounded-xl shadow-lg p-4 border-l-4 border-blue-500 hover:shadow-xl transition-all"
               >
                 <div className="flex flex-col md:flex-row gap-4">
                   {/* Video Thumbnail/Player */}
                   <div className="relative md:w-1/3 h-40 rounded-lg overflow-hidden">
                     <VideoThumbnail 
-                      report={report} 
-                      isPlaying={playingVideo === report._id}
-                      onClick={(e) => handleVideoClick(e, report._id)}
+                      issue={issue} 
+                      isPlaying={playingVideo === issue._id}
+                      onClick={(e) => handleVideoClick(e, issue._id)}
                     />
                   </div>
                   
-                  {/* Report Details */}
+                  {/* Issue Details */}
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-800">{report.title}</h4>
+                    <h4 className="font-medium text-gray-800">{issue.title}</h4>
                     <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <span className={`px-2 py-1 rounded-full text-xs ${statusColors[report.status]}`}>
-                        {report.status}
+                      <span className={`px-2 py-1 rounded-full text-xs ${statusColors[issue.status]}`}>
+                        {issue.status}
                       </span>
                       <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
-                        {report.category}
+                        {issue.category}
                       </span>
                     </div>
                     
                     <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
                       <span className="flex items-center">
                         <FaMapMarkerAlt className="mr-1 text-gray-400" />
-                        {getDistanceFromLocation(report.location.latitude, report.location.longitude)}
+                        {issue.location && getDistanceFromLocation(issue.location.latitude, issue.location.longitude)}
                       </span>
                       <span className="flex items-center">
                         <FaCalendarAlt className="mr-1 text-gray-400" />
-                        {formatDate(report.createdAt)}
+                        {formatDate(issue.createdAt)}
                       </span>
                     </div>
                     
                     <div className="flex items-center gap-4 mt-3 text-sm">
                       <div className="flex items-center text-gray-600">
                         <FaCheckCircle className="text-green-500 mr-1" />
-                        <span>{report.verifications} verifications</span>
+                        <span>{issue.verifications || 0} verifications</span>
                       </div>
                       <div className="flex items-center text-gray-600">
                         <FaEye className="text-gray-500 mr-1" />
-                        <span>{report.views} views</span>
+                        <span>{issue.views} views</span>
                       </div>
                     </div>
 
                     <div className="text-xs text-gray-600 mb-3">
-                      Reported by: <span className="font-medium">{report.createdBy.name}</span>
+                      Reported by: <span className="font-medium">{issue.createdBy?.name || 'Unknown'}</span>
                     </div>
 
                     {/* Verification Buttons */}
                     <div className="flex gap-3 mt-4">
                       <button
-                        onClick={() => handleVerify(report._id)}
+                        onClick={() => handleVerify(issue._id)}
                         disabled={verifying}
                         className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50"
                       >
@@ -502,7 +408,7 @@ const Verification = () => {
                         Verify Issue
                       </button>
                       <button
-                        onClick={() => handleMarkAsFake(report._id)}
+                        onClick={() => handleMarkAsFake(issue._id)}
                         disabled={verifying}
                         className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50"
                       >
@@ -518,57 +424,57 @@ const Verification = () => {
         ) : (
           /* Grid View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reportsWithStatus.map(report => (
+            {reportsWithStatus.map(issue => (
               <div 
-                key={report._id} 
+                key={issue._id} 
                 className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all flex flex-col"
               >
                 {/* Video Thumbnail/Player */}
                 <div className="relative h-48">
                   <VideoThumbnail 
-                    report={report} 
-                    isPlaying={playingVideo === report._id}
-                    onClick={(e) => handleVideoClick(e, report._id)}
+                    issue={issue} 
+                    isPlaying={playingVideo === issue._id}
+                    onClick={(e) => handleVideoClick(e, issue._id)}
                   />
                 </div>
                 
-                {/* Report Details */}
+                {/* Issue Details */}
                 <div className="p-4 flex-grow">
-                  <h4 className="font-medium text-gray-800 mb-2">{report.title}</h4>
+                  <h4 className="font-medium text-gray-800 mb-2">{issue.title}</h4>
                   <div className="flex flex-wrap gap-2 mb-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${statusColors[report.status]}`}>
-                      {report.status}
+                    <span className={`px-2 py-1 rounded-full text-xs ${statusColors[issue.status]}`}>
+                      {issue.status}
                     </span>
                     <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
-                      {report.category}
+                      {issue.category}
                     </span>
                   </div>
                   
                   <div className="flex items-center text-sm text-gray-600 mb-2">
                     <FaMapMarkerAlt className="mr-1 text-gray-400" />
-                    {getDistanceFromLocation(report.location.latitude, report.location.longitude)}
+                    {issue.location && getDistanceFromLocation(issue.location.latitude, issue.location.longitude)}
                   </div>
                   
                   <div className="flex justify-between text-xs text-gray-500 mb-3">
                     <span className="flex items-center">
                       <FaCheckCircle className="text-green-500 mr-1" />
-                      {report.verifications}
+                      {issue.verifications || 0}
                     </span>
                     <span className="flex items-center">
                       <FaEye className="text-gray-500 mr-1" />
-                      {report.views}
+                      {issue.views}
                     </span>
-                    <span>{formatDate(report.createdAt)}</span>
+                    <span>{formatDate(issue.createdAt)}</span>
                   </div>
 
                   <div className="text-xs text-gray-600 mb-3">
-                    Reported by: <span className="font-medium">{report.createdBy.name}</span>
+                    Reported by: <span className="font-medium">{issue.createdBy?.name || 'Unknown'}</span>
                   </div>
 
                   {/* Verification Buttons */}
                   <div className="flex flex-col gap-2 mt-2">
                     <button
-                      onClick={() => handleVerify(report._id)}
+                      onClick={() => handleVerify(issue._id)}
                       disabled={verifying}
                       className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors disabled:opacity-50"
                     >
@@ -576,7 +482,7 @@ const Verification = () => {
                       Verify
                     </button>
                     <button
-                      onClick={() => handleMarkAsFake(report._id)}
+                      onClick={() => handleMarkAsFake(issue._id)}
                       disabled={verifying}
                       className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors disabled:opacity-50"
                     >
