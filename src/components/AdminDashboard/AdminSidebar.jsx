@@ -24,6 +24,7 @@ const adminNavItems = [
   { path: '/admin/departments', icon: <FaBuilding className="text-xl" />, label: 'Departments' },
   { path: '/admin/analytics', icon: <FaChartBar className="text-xl" />, label: 'Analytics' },
   { path: '/admin/user-management', icon: <FaChartBar className="text-xl" />, label: 'User Management' },
+  { path: '/admin/street', icon: <FaChartBar className="text-xl" />, label: 'Street Department' },
 ];
 
 const AdminSidebar = ({ isSidebarOpen, onMenuClick }) => {

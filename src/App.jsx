@@ -17,6 +17,7 @@ import Rewards from "./pages/Rewards";
 import Departments from "./pages/Admin/Departments";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 import UserManagement from "./pages/Admin/UserManagment";
+import StreetDepartmentDashboard from "./pages/Admin/StreetDepartmentDashboard";
 const App = () => {
   return (
     <Router>
@@ -77,6 +78,7 @@ const App = () => {
           <Route path="departments" element={<Departments/>} />
           <Route path="analytics" element={<AnalyticsDashboard/>} />
           <Route path="user-management" element={<UserManagement/>} />
+          <Route path="street" element={<StreetDepartmentDashboard/>} />
         
         </Route>
 
