@@ -15,10 +15,25 @@ const Verification = () => {
   const [playingVideo, setPlayingVideo] = useState(null);
   const [verifying, setVerifying] = useState(false);
 
+
+  const handle_verification = async (id, type) => {
+  try {
+    const { data } = await api.post("/user-issue/verify-issues", {
+      id,
+      type, // "real" or "fake"
+    });
+
+    console.log("Verification response:", data);
+  } catch (error) {
+    console.error("Error verifying issue:", error.response?.data || error.message);
+  }
+};
+
+
   useEffect(() => {
     const fetchMyIssues = async () => {
       try {
-        const { data } = await api.get("/user-issue/my-issues", {
+        const { data } = await api.get("/user-issue/other-issues", {
           withCredentials: true,
         });
         console.log("Fetched My Issues:", data);
@@ -123,49 +138,9 @@ const Verification = () => {
     return distances[Math.floor(Math.random() * distances.length)];
   };
 
-  // Handle verification (endorse) action
-  const handleVerify = async (issueId) => {
-    setVerifying(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update the issue's verification count
-      setIssues(prevIssues => 
-        prevIssues.map(issue => 
-          issue._id === issueId 
-            ? { ...issue, verifications: issue.verifications + 1 }
-            : issue
-        )
-      );
-      
-      alert("Issue verified successfully!");
-    } catch (error) {
-      console.error("Error verifying issue:", error);
-      alert("Failed to verify issue. Please try again.");
-    } finally {
-      setVerifying(false);
-    }
-  };
+  
 
-  // Handle mark as fake action
-  const handleMarkAsFake = async (issueId) => {
-    setVerifying(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Remove the issue from the list
-      setIssues(prevIssues => prevIssues.filter(issue => issue._id !== issueId));
-      
-      alert("Issue marked as fake and removed from list!");
-    } catch (error) {
-      console.error("Error marking issue as fake:", error);
-      alert("Failed to mark issue as fake. Please try again.");
-    } finally {
-      setVerifying(false);
-    }
-  };
+
 
   // Video Thumbnail Component
   const VideoThumbnail = ({ issue, isPlaying, onClick }) => {
@@ -474,15 +449,16 @@ const Verification = () => {
                   {/* Verification Buttons */}
                   <div className="flex flex-col gap-2 mt-2">
                     <button
-                      onClick={() => handleVerify(issue._id)}
+                      onClick={() => handle_verification(issue._id,"real")}
                       disabled={verifying}
                       className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors disabled:opacity-50"
                     >
                       <FaThumbsUp />
                       Verify
                     </button>
+
                     <button
-                      onClick={() => handleMarkAsFake(issue._id)}
+                      onClick={() => handle_verification(issue._id,"fake")}
                       disabled={verifying}
                       className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors disabled:opacity-50"
                     >
