@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/layouts/Layout";
+import CivicConnectLinkTree from "./pages/CivicConnectLinkTree";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import UserApplicationLayout from "./components/layouts/UserApplicationLayout";
@@ -101,6 +102,7 @@ const App = () => {
           path="/google"
           element={<OpenInGoogleMaps lat={28.6129} lng={77.2295} />}
         />
+        <Route path="/linktree" element={<CivicConnectLinkTree />} />
          {/* <VideoTranscriber /> */}
       <Route path="/transcriber" element={<VideoTranscriber videoUrl={"https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758477119/report-videos/ybe0ahljvw1uizyqctlt.webm"} />} />
       </Routes>
