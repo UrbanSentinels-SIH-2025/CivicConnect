@@ -607,16 +607,19 @@ const IssueDetail = () => {
         <StatusIndicator status={progress.inProgress?.completed} label="In Progress" stepNumber={3} />
         <StatusIndicator status={progress.resolved?.completed} label="Resolved" stepNumber={4} />
       </div>
+
+
+      
       
       {/* Fixed alignment for Start Work button */}
       <div className="mt-6 flex flex-col gap-3">
         {!isResolved && !progress.inProgress?.completed && (
-          <NavLink
-            to={`/department/${departmentName}/mark-as-complete/${finalIssueId}`}
+          <button
+           onClick={handleStartWork}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-colors text-center"
           >
             Start Work on This Issue
-          </NavLink>
+          </button>
         )}
         
         {progress.inProgress?.completed && !isResolved && (
