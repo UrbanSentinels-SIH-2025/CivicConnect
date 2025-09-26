@@ -81,7 +81,7 @@ export default function UserApplicationLayout() {
         <main
           className={`flex-grow max-w-full transition-all duration-300 ease-in-out ${
             isSidebarOpen ? "md:ml-64" : "md:ml-20"
-          } p-4 overflow-x-hidden`}
+          }  overflow-x-hidden`}
         >
           <Outlet />
         </main>

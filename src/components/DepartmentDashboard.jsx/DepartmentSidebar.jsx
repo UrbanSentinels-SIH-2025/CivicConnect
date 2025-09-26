@@ -17,16 +17,28 @@ import {
   FaBuilding,
   FaExclamationTriangle
 } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
 
-const adminNavItems = [
-  { path: '/admin/dashboard', icon: <FaHome className="text-xl" />, label: 'Dashboard' },
-  { path: '/admin/issues', icon: <FaExclamationTriangle className="text-xl" />, label: 'All Issues' },
-  { path: '/admin/departments', icon: <FaBuilding className="text-xl" />, label: 'Departments' },
-  { path: '/admin/analytics', icon: <FaChartBar className="text-xl" />, label: 'Analytics' },
-  { path: '/admin/user-management', icon: <FaChartBar className="text-xl" />, label: 'User Management' },
- ];
 
-const AdminSidebar = ({ isSidebarOpen, onMenuClick }) => {
+const DepartmentSidebar = ({ isSidebarOpen, onMenuClick }) => {
+ const { departmentName } = useParams();
+
+ const adminNavItems = [
+  {
+    path: `/department/${departmentName}`,
+    icon: <FaHome className="text-xl" />,
+    label: "Dashboard",
+  },
+  {
+    path: `/department/${departmentName}/progress`,
+    icon: <FaExclamationTriangle className="text-xl" />,
+    label: "Issues In Progress",
+  },{
+    path: `/department/${departmentName}/resolved`,
+    icon: <FaExclamationTriangle className="text-xl" />,
+    label: "Resolved Issues",
+  },
+];
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 640;
 
@@ -45,7 +57,7 @@ const AdminSidebar = ({ isSidebarOpen, onMenuClick }) => {
     <motion.aside
       animate={{ width: isSidebarOpen ? '16rem' : '5rem' }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className={`h-full z-2000 fixed z-1000 sm:mt-0  
+      className={`h-full fixed z-1000 sm:mt-0  
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
         sm:translate-x-0
         px-4 py-4 bg-white text-gray-800 font-sans md:flex flex-col overflow-hidden shadow-sm border-r border-gray-200`}
@@ -85,37 +97,39 @@ const AdminSidebar = ({ isSidebarOpen, onMenuClick }) => {
       {/* Links */}
       <nav className="flex-1 px-2 space-y-1">
         {adminNavItems.map((item, index) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            onClick={(e) => handleLinkClick(e, item.path)}
-            className={({ isActive }) =>
-              `flex items-center ${
-                isSidebarOpen ? 'justify-start pl-3' : 'justify-center px-5'
-              } gap-3 px-3 py-3 rounded-md transition-all duration-300 font-medium ${
-                isActive 
-                  ? 'bg-blue-50 text-blue-600 border border-blue-100' 
-                  : 'text-gray-600 hover:bg-blue-100 hover:text-blue-500'
-              }`
-            }
-          >
-            <div className="w-6 h-6 flex items-center justify-center text-xl">
-              {item.icon}
-            </div>
-            {isSidebarOpen && (
-              <motion.span
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={ isMobile 
-                  ? { duration: 0.2, ease: 'easeInOut', delay: 0.05 * index + 0.3 } 
-                  : { duration: 0.2, type: 'spring', stiffness: 200, delay: 0.05 * index + 0.3 } 
-                }
-                className="origin-left"
-              >
-                {item.label}
-              </motion.span>
-            )}
-          </NavLink>
+         <NavLink
+  key={item.path}
+  to={item.path}
+  end={item.path === `/department/${departmentName}`} // exact match only for Dashboard
+  onClick={(e) => handleLinkClick(e, item.path)}
+  className={({ isActive }) =>
+    `flex items-center ${
+      isSidebarOpen ? 'justify-start pl-3' : 'justify-center px-5'
+    } gap-3 px-3 py-3 rounded-md transition-all duration-300 font-medium ${
+      isActive 
+        ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+        : 'text-gray-600 hover:bg-blue-100 hover:text-blue-500'
+    }`
+  }
+>
+  <div className="w-6 h-6 flex items-center justify-center text-xl">
+    {item.icon}
+  </div>
+  {isSidebarOpen && (
+    <motion.span
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={ isMobile 
+        ? { duration: 0.2, ease: 'easeInOut', delay: 0.05 * index + 0.3 } 
+        : { duration: 0.2, type: 'spring', stiffness: 200, delay: 0.05 * index + 0.3 } 
+      }
+      className="origin-left"
+    >
+      {item.label}
+    </motion.span>
+  )}
+</NavLink>
+
         ))}
       </nav>
 
@@ -135,9 +149,9 @@ const AdminSidebar = ({ isSidebarOpen, onMenuClick }) => {
   );
 };
 
-AdminSidebar.propTypes = {
+DepartmentSidebar.propTypes = {
   isSidebarOpen: PropTypes.bool.isRequired,
   onMenuClick: PropTypes.func.isRequired,
 };
 
-export default AdminSidebar;
+export default DepartmentSidebar;

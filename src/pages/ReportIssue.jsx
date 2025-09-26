@@ -393,7 +393,7 @@ const ReportIssue = () => {
           <div className="mb-6">
             <label className="block text-gray-700 font-medium mb-3 text-lg">Issue Category</label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {['Street', 'Road', 'Water', 'Electricity', 'Sanitation'].map((opt) => (
+              {[ 'Road', 'Water', 'Electricity', 'Sanitation'].map((opt) => (
                 <button
                   key={opt}
                   type="button"

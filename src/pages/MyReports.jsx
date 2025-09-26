@@ -56,6 +56,27 @@ const MyReports = () => {
   // Get unique categories from reports
   const categories = [...new Set(reports.map(report => report.category))];
 
+  // FIXED: Safe calculation of total verifications
+  const getTotalVerifications = (verifications) => {
+    console.log('njbfnbf',verifications)
+    if (!verifications) return 0;
+    
+    const realCount = verifications.real?.length || 0;
+    const fakeCount = verifications.fake?.length || 0;
+    
+    return realCount + fakeCount;
+  };
+
+  // FIXED: Safe access to verification arrays
+  const getVerificationCounts = (verifications) => {
+    if (!verifications) return { real: 0, fake: 0 };
+    
+    return {
+      real: verifications.real?.length || 0,
+      fake: verifications.fake?.length || 0
+    };
+  };
+
   // Filter and sort reports based on user selection
   useEffect(() => {
     let result = [...reports];
@@ -68,7 +89,7 @@ const MyReports = () => {
     }
     
     if (statusFilter !== "All") {
-      result = result.filter(report => report.status === statusFilter);
+      result = result.filter(report => getStatusFromProgress(report.progress) === statusFilter);
     }
     
     if (categoryFilter !== "All") {
@@ -81,7 +102,9 @@ const MyReports = () => {
           ? new Date(a.createdAt) - new Date(b.createdAt) 
           : new Date(b.createdAt) - new Date(a.createdAt);
       } else if (sortBy === "verifications") {
-        return sortOrder === "asc" ? a.verifications - b.verifications : b.verifications - a.verifications;
+        const aVerifications = getTotalVerifications(a.verifications);
+        const bVerifications = getTotalVerifications(b.verifications);
+        return sortOrder === "asc" ? aVerifications - bVerifications : bVerifications - aVerifications;
       } 
       return 0;
     });
@@ -89,30 +112,33 @@ const MyReports = () => {
     setFilteredReports(result);
   }, [searchTerm, statusFilter, categoryFilter, sortBy, sortOrder, reports]);
 
-  // Determine status based on progress
+  // Determine status based on progress (updated to match your API structure)
   const getStatusFromProgress = (progress) => {
-    if (progress.resolved.completed) return "Resolved";
-    if (progress.inProgress.completed) return "In Progress";
-    if (progress.verified.completed) return "Verified";
-    return "Pending";
+    if (!progress) return "Reported";
+    
+    if (progress.resolved?.completed) return "Resolved";
+    if (progress.inProgress?.completed) return "In Progress";
+    if (progress.verified?.completed) return "Verified";
+    return "Reported";
   };
 
-  // Add status to each report based on progress
+  // Add status and total verifications to each report (FIXED)
   const reportsWithStatus = filteredReports.map(report => ({
     ...report,
     status: getStatusFromProgress(report.progress),
-    
+    totalVerifications: getTotalVerifications(report.verifications),
+    verificationCounts: getVerificationCounts(report.verifications) // Add this for safe access
   }));
 
   const statusColors = {
-    "Pending": "bg-blue-100 text-blue-800",
+    "Reported": "bg-blue-100 text-blue-800",
     "Verified": "bg-purple-100 text-purple-800",
     "In Progress": "bg-yellow-100 text-yellow-800",
     "Resolved": "bg-green-100 text-green-800"
   };
 
   const statusIcons = {
-    "Pending": <FaClock className="text-blue-500" />,
+    "Reported": <FaClock className="text-blue-500" />,
     "Verified": <FaCheck className="text-purple-500" />,
     "In Progress": <FaExclamationTriangle className="text-yellow-500" />,
     "Resolved": <FaCheckCircle className="text-green-500" />
@@ -124,6 +150,8 @@ const MyReports = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return "Date not available";
+    
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -135,6 +163,8 @@ const MyReports = () => {
   };
 
   const getDistanceFromLocation = (lat, lng) => {
+    if (!lat || !lng) return "Location not available";
+    
     // Simple mock function - in a real app, you'd calculate actual distance
     const distances = ["0.2 km away", "0.5 km away", "0.8 km away", "1.2 km away", "1.5 km away"];
     return distances[Math.floor(Math.random() * distances.length)];
@@ -168,23 +198,25 @@ const MyReports = () => {
     );
   };
 
-  // Progress Tracker Component (Flipkart-style)
+  // Progress Tracker Component (FIXED with safe access)
   const ProgressTracker = ({ report }) => {
+    if (!report.progress) return null;
+    
     const steps = [
-      
-      { key: 'verified', label: 'Verified', date: report.progress.verified.date },
-      { key: 'inProgress', label: 'In Progress', date: report.progress.inProgress.date },
-      { key: 'resolved', label: 'Resolved', date: report.progress.resolved.date }
+      { key: 'reported', label: 'Reported', date: report.progress.reported?.date },
+      { key: 'verified', label: 'Verified', date: report.progress.verified?.date },
+      { key: 'inProgress', label: 'In Progress', date: report.progress.inProgress?.date },
+      { key: 'resolved', label: 'Resolved', date: report.progress.resolved?.date }
     ];
 
-    const currentStatusIndex = steps.findIndex(step => report.progress[step.key].completed && 
-      (step.key === 'resolved' || !report.progress[steps[steps.indexOf(step) + 1]]?.completed));
+    // Find the current active step
+    const currentStatusIndex = steps.findIndex(step => report.progress[step.key]?.completed);
 
     return (
       <div className="mt-4">
         <div className="flex justify-between items-center mb-2">
           {steps.map((step, index) => (
-            <div key={step.key} className="flex flex-col items-center relative">
+            <div key={step.key} className="flex flex-col items-center relative flex-1">
               {/* Connection line */}
               {index > 0 && (
                 <div 
@@ -197,22 +229,20 @@ const MyReports = () => {
               {/* Step circle */}
               <div 
                 className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                  report.progress[step.key].completed 
+                  report.progress[step.key]?.completed 
                     ? 'bg-green-500 text-white' 
                     : 'bg-gray-300 text-gray-600'
                 }`}
               >
-                {report.progress[step.key].completed ? (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
+                {report.progress[step.key]?.completed ? (
+                  <FaCheck className="w-3 h-3" />
                 ) : (
                   <span className="text-xs font-bold">{index + 1}</span>
                 )}
               </div>
               
               {/* Step label */}
-              <span className={`text-xs mt-1 font-medium ${
+              <span className={`text-xs mt-1 font-medium text-center ${
                 index <= currentStatusIndex ? 'text-green-600' : 'text-gray-500'
               }`}>
                 {step.label}
@@ -220,8 +250,8 @@ const MyReports = () => {
               
               {/* Date */}
               {step.date && (
-                <span className="text-xs text-gray-400 mt-1">
-                  {new Date(step.date).toLocaleDateString()}
+                <span className="text-xs text-gray-400 mt-1 text-center">
+                  {formatDate(step.date)}
                 </span>
               )}
             </div>
@@ -231,7 +261,7 @@ const MyReports = () => {
         {/* Current status text */}
         <div className="text-center mt-3">
           <span className="text-sm font-medium text-gray-700">
-            Current Status: <span className={statusColors[report.status].replace('bg-', 'text-')}>
+            Current Status: <span className={statusColors[report.status]?.replace('bg-', 'text-').replace('100', '800') || 'text-gray-600'}>
               {report.status}
             </span>
           </span>
@@ -323,8 +353,8 @@ const MyReports = () => {
           <div>
             <p className="text-sm opacity-80">Avg. Verifications</p>
             <p className="text-2xl font-bold">
-              {reports.length > 0 
-                ? Math.round(reportsWithStatus.reduce((sum, report) => sum + report.verifications, 0) / reports.length)
+              {reportsWithStatus.length > 0 
+                ? Math.round(reportsWithStatus.reduce((sum, report) => sum + report.totalVerifications, 0) / reportsWithStatus.length)
                 : 0}
             </p>
             <p className="text-xs opacity-80 mt-1">Community support</p>
@@ -355,7 +385,7 @@ const MyReports = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="All">All Statuses</option>
-              <option value="Pending">Pending</option>
+              <option value="Reported">Reported</option>
               <option value="Verified">Verified</option>
               <option value="In Progress">In Progress</option>
               <option value="Resolved">Resolved</option>
@@ -438,7 +468,7 @@ const MyReports = () => {
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-800">{report.title}</h4>
                     <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <span className={`px-2 py-1 rounded-full text-xs ${statusColors[report.status]}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs ${statusColors[report.status] || 'bg-gray-100 text-gray-800'}`}>
                         {report.status}
                       </span>
                       <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
@@ -449,7 +479,7 @@ const MyReports = () => {
                     <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
                       <span className="flex items-center">
                         <FaMapMarkerAlt className="mr-1 text-gray-400" />
-                        {getDistanceFromLocation(report.location.latitude, report.location.longitude)}
+                        {getDistanceFromLocation(report.location?.latitude, report.location?.longitude)}
                       </span>
                       <span className="flex items-center">
                         <FaCalendarAlt className="mr-1 text-gray-400" />
@@ -460,7 +490,10 @@ const MyReports = () => {
                     <div className="flex items-center gap-4 mt-3 text-sm">
                       <div className="flex items-center text-gray-600">
                         <FaCheckCircle className="text-green-500 mr-1" />
-                        <span>{report.verifications} verifications</span>
+                        <span>{report.totalVerifications} verifications</span>
+                        <span className="text-xs text-gray-400 ml-1">
+                          ({report.verificationCounts.real} real, {report.verificationCounts.fake} fake)
+                        </span>
                       </div>
                     </div>
 
@@ -493,7 +526,7 @@ const MyReports = () => {
                 <div className="p-4 flex-grow">
                   <h4 className="font-medium text-gray-800 mb-2">{report.title}</h4>
                   <div className="flex flex-wrap gap-2 mb-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${statusColors[report.status]}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs ${statusColors[report.status] || 'bg-gray-100 text-gray-800'}`}>
                       {report.status}
                     </span>
                     <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
@@ -503,13 +536,13 @@ const MyReports = () => {
                   
                   <div className="flex items-center text-sm text-gray-600 mb-2">
                     <FaMapMarkerAlt className="mr-1 text-gray-400" />
-                    {getDistanceFromLocation(report.location.latitude, report.location.longitude)}
+                    {getDistanceFromLocation(report.location?.latitude, report.location?.longitude)}
                   </div>
                   
                   <div className="flex justify-between text-xs text-gray-500 mb-3">
                     <span className="flex items-center">
                       <FaCheckCircle className="text-green-500 mr-1" />
-                      {report.verifications}
+                      {report.totalVerifications}
                     </span>
                     
                     <span>{formatDate(report.createdAt)}</span>
@@ -584,7 +617,7 @@ const MyReports = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <h3 className="text-sm font-medium text-blue-500 mb-1">Status</h3>
-                  <p className={`px-3 py-1 rounded-full text-sm inline-block ${statusColors[selectedReport.status]}`}>
+                  <p className={`px-3 py-1 rounded-full text-sm inline-block ${statusColors[selectedReport.status] || 'bg-gray-100 text-gray-800'}`}>
                     {selectedReport.status}
                   </p>
                 </div>
@@ -601,12 +634,17 @@ const MyReports = () => {
                 
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <h3 className="text-sm font-medium text-blue-500 mb-1">Location</h3>
-                  <p className="font-medium">{getDistanceFromLocation(selectedReport.location.latitude, selectedReport.location.longitude)}</p>
+                  <p className="font-medium">{getDistanceFromLocation(selectedReport.location?.latitude, selectedReport.location?.longitude)}</p>
                 </div>
                 
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <h3 className="text-sm font-medium text-blue-500 mb-1">Verifications</h3>
-                  <p className="font-medium">{selectedReport.verifications}</p>
+                  <p className="font-medium">
+                    {selectedReport.totalVerifications} total
+                    <span className="text-xs text-gray-600 ml-2">
+                      ({selectedReport.verificationCounts.real} real, {selectedReport.verificationCounts.fake} fake)
+                    </span>
+                  </p>
                 </div>
               </div>
 
@@ -614,6 +652,21 @@ const MyReports = () => {
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
                 <h3 className="text-sm font-medium text-blue-500 mb-3">Issue Progress</h3>
                 <ProgressTracker report={selectedReport} />
+              </div>
+
+              {/* Verification Details */}
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-blue-500 mb-3">Verification Details</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-green-600 font-bold text-xl">{selectedReport.verificationCounts.real}</div>
+                    <div className="text-sm text-gray-600">Real Verifications</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-red-600 font-bold text-xl">{selectedReport.verificationCounts.fake}</div>
+                    <div className="text-sm text-gray-600">Fake Reports</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

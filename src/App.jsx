@@ -17,7 +17,15 @@ import Rewards from "./pages/Rewards";
 import Departments from "./pages/Admin/Departments";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 import UserManagement from "./pages/Admin/UserManagment";
-import StreetDepartmentDashboard from "./pages/Admin/StreetDepartmentDashboard";
+import StreetDepartmentDashboard from "./pages/Departements/StreetDepartmentDashboard";
+import OpenInGoogleMaps from "./pages/Departements/OpenGoogleMaps";
+import DepartmentsLayout from "./components/layouts/DepartmentsLayout";
+import Departements from "./pages/Departements/Departements";
+import Progress from "./pages/Departements/Progress";
+import IssueDetail from "./pages/Departements/IssueDetail";
+import VideoTranscriber from "./components/DepartmentDashboard.jsx/VideoTranscriber";
+import TaskComplete from "./pages/Departements/TaskComplete";
+import Resolved from "./pages/Departements/Resolved";
 const App = () => {
   return (
     <Router>
@@ -53,38 +61,50 @@ const App = () => {
           <Route path="dashboard" element={<Dashboard />} />
 
           {/* Explicit path for /user/profile */}
-          <Route path="report" element={<ReportIssue/>} />
-            <Route path="my-issues" element={<MyReports/>} />
-            <Route path="community-reports" element={<Verification/>} />
-            <Route path="settings" element={<Settings/>} />
-            <Route path="rewards" element={<Rewards/>} />
+          <Route path="report" element={<ReportIssue />} />
+          <Route path="my-issues" element={<MyReports />} />
+          <Route path="community-reports" element={<Verification />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="rewards" element={<Rewards />} />
         </Route>
 
-
-        <Route
-          path="/admin"
-          element={
-            
-              <AdminLayout />
-      
-          }
-        >
+        <Route path="/admin" element={<AdminLayout />}>
           {/* This matches exactly /admin */}
           <Route index element={<AdminDashboard />} />
           {/* Explicit path for /admin/dashboard */}
           <Route path="dashboard" element={<AdminDashboard />} />
           {/* Explicit path for /admin/profile */}
-          <Route path="issues" element={<Issues/>} />
-          <Route path="departments" element={<Departments/>} />
-          <Route path="analytics" element={<AnalyticsDashboard/>} />
-          <Route path="user-management" element={<UserManagement/>} />
-          <Route path="street" element={<StreetDepartmentDashboard/>} />
-        
+          <Route path="issues" element={<Issues />} />
+          <Route path="departments" element={<Departments />} />
+          <Route path="analytics" element={<AnalyticsDashboard />} />
+          <Route path="issue-detail/:id" element={<IssueDetail/>}/>
+          <Route path="user-management" element={<UserManagement />} />
+          <Route
+            path="department/:departmentName"
+            element={<StreetDepartmentDashboard />}
+          />
         </Route>
 
+        <Route
+          path="/department/:departmentName"
+          element={<DepartmentsLayout />}
+        >
+          <Route index element={<Departements />} />
+          <Route path="progress" element={<Progress />} />
+          <Route path="resolved" element={<Resolved />} />
+          <Route path="issue/:issueId" element={<IssueDetail />} />{" "}
+          <Route path="mark-as-complete/:issueId" element={<TaskComplete/>} />
+          {/* New page */}
+        </Route>
 
-
+        <Route
+          path="/google"
+          element={<OpenInGoogleMaps lat={28.6129} lng={77.2295} />}
+        />
+         {/* <VideoTranscriber /> */}
+      <Route path="/transcriber" element={<VideoTranscriber videoUrl={"https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758477119/report-videos/ybe0ahljvw1uizyqctlt.webm"} />} />
       </Routes>
+     
     </Router>
   );
 };

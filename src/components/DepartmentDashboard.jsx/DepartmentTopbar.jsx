@@ -7,8 +7,10 @@ import { TbLayoutSidebarRightCollapse } from "react-icons/tb";
 import { FaCity } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
+import { useParams } from 'react-router-dom';
 
-const AdminTopbar = ({ onMenuClick, isSidebarOpen }) => {
+const DepartmentTopbar = ({ onMenuClick, isSidebarOpen }) => {
+    const { departmentName } = useParams();
   const [notificationCount, setNotificationCount] = useState(7);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -36,7 +38,7 @@ const AdminTopbar = ({ onMenuClick, isSidebarOpen }) => {
   };
 
   return (
-    <header className="w-full z-2000 fixed h-16  bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm py-9">
+    <header className="w-full fixed h-16 z-2000 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm py-9">
       
       {/* Left side: Logo & Menu */}
       <div className="flex items-center gap-4">
@@ -62,7 +64,7 @@ const AdminTopbar = ({ onMenuClick, isSidebarOpen }) => {
           </motion.div>
           <h1 className="text-lg sm:text-xl font-bold text-gray-800">
             <span className="hidden md:inline">CivicConnect </span>
-            Admin Portal
+            {departmentName} Portal
           </h1>
         </div>
       </div>
@@ -90,7 +92,7 @@ const AdminTopbar = ({ onMenuClick, isSidebarOpen }) => {
         {/* Admin Profile */}
         <div className="hidden md:flex items-center gap-2 text-gray-600 hover:text-blue-600 cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition">
           <FaUserCircle className="text-xl" />
-          <span className="text-sm font-medium">Admin User</span>
+          <span className="text-sm font-medium">{departmentName} department User</span>
         </div>
 
         {/* Logout Button */}
@@ -147,4 +149,4 @@ const AdminTopbar = ({ onMenuClick, isSidebarOpen }) => {
   );
 };
 
-export default AdminTopbar;
+export default DepartmentTopbar;

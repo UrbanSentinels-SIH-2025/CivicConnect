@@ -1,7 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import { NavLink } from "react-router-dom";
+import api from "../../api/axios";
+import { useEffect, useState, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import api from "../../api/axios";
+import IssueRow from "./issues/IssueRow";
+import Card from "./issues/Card";
+import FilterResultsInfo from "./issues/FilterResultsInfo";
+import Header from "./issues/Header";
+import VideoModal from "./issues/VideoModal";
 
 // Fix for default markers in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -13,16 +19,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
-
-// Utility to get status badge color
-const getStatusBadge = (status) => {
-  const baseClass = "px-2 py-1 rounded text-xs font-semibold";
-  if (status === "Pending") return `${baseClass} bg-red-100 text-red-700`;
-  if (status === "In Progress")
-    return `${baseClass} bg-yellow-100 text-yellow-700`;
-  if (status === "Resolved") return `${baseClass} bg-green-100 text-green-700`;
-  return baseClass;
-};
 
 // Get category color for map markers
 const getCategoryColor = (category) => {
@@ -65,7 +61,7 @@ const createCustomIcon = (category, isSelected = false) => {
                        text-align: center;
                        margin-top: ${isSelected ? "2px" : "1px"};
                        margin-left: ${isSelected ? "1px" : "0"}">
-              ${category.charAt(0)}
+              ${category ? category.charAt(0) : 'I'}
             </div>
            </div>`,
     iconSize: [size, size],
@@ -73,234 +69,15 @@ const createCustomIcon = (category, isSelected = false) => {
   });
 };
 
-// Format date for display
-const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-};
-
-// Filter component
-const FilterBar = ({ filters, setFilters, categories, statuses }) => {
-  return (
-    <div className="bg-white rounded-lg shadow p-4 mb-4">
-      <div className="flex flex-wrap gap-4 items-center">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Category
-          </label>
-          <select
-            className="rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-            value={filters.category}
-            onChange={(e) =>
-              setFilters({ ...filters, category: e.target.value })
-            }
-          >
-            <option value="All">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
-          <select
-            className="rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          >
-            <option value="All">All Statuses</option>
-            {statuses.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Sort By
-          </label>
-          <select
-            className="rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-            value={filters.sortBy}
-            onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="verifications">Most Verifications</option>
-          </select>
-        </div>
-
-        <div className="flex items-end">
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm"
-            onClick={() =>
-              setFilters({ category: "All", status: "All", sortBy: "newest" })
-            }
-          >
-            Reset Filters
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Simplified Issue card component
-const IssueCard = ({ issue, onSelect, isSelected, onOpenVideo }) => {
-  const handleVideoClick = (e) => {
-    e.stopPropagation();
-    onOpenVideo(issue.videoUrl, issue.title);
-  };
-
-  // Determine status based on progress
-  const getStatusFromProgress = (progress) => {
-    if (progress.resolved.completed) return "Resolved";
-    if (progress.inProgress.completed) return "In Progress";
-    if (progress.verified.completed) return "Verified";
-    return "Pending";
-  };
-
-  const status = getStatusFromProgress(issue.progress);
-
-  return (
-    <div
-      className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer ${
-        isSelected ? "ring-2 ring-blue-500" : ""
-      }`}
-      onClick={() => onSelect(issue)}
-    >
-      {/* Video thumbnail */}
-      <div className="relative">
-        <img
-          src={
-            issue.thumbnail ||
-            "https://via.placeholder.com/400x200?text=No+Thumbnail"
-          }
-          alt={issue.title}
-          className="w-full h-32 object-cover"
-        />
-        <button
-          onClick={handleVideoClick}
-          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 hover:bg-opacity-60 transition-opacity"
-        >
-          <div className="bg-white rounded-full p-3 hover:bg-gray-100 transition-colors">
-            <svg
-              className="w-6 h-6 text-blue-600"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </div>
-        </button>
-      </div>
-
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold text-gray-900 truncate">
-            {issue.title}
-          </h3>
-          <span className={getStatusBadge(status)}>{status}</span>
-        </div>
-
-        <p className="text-sm text-gray-600 mb-2">Category: {issue.category}</p>
-
-        <div className="flex items-center mb-2">
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded mr-2">
-            {issue.verifications} verifications
-          </span>
-        </div>
-
-        <div className="text-xs text-gray-500 mb-2">
-          Reported: {formatDate(issue.createdAt)}
-        </div>
-
-        <div className="text-xs text-gray-600 mb-3">
-          Reported by: <span className="font-medium">{issue.createdBy?.name || "Unknown"}</span>
-        </div>
-
-        {/* Video button */}
-        <button
-          onClick={handleVideoClick}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors"
-        >
-          📹 Watch Video
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Map Legend Component - Concise version
-const MapLegend = () => {
-  const categories = [
-    { name: "Street", color: "#ef4444", description: "Road issues" },
-    { name: "Water", color: "#3b82f6", description: "Water problems" },
-    { name: "Electricity", color: "#eab308", description: "Power issues" },
-    { name: "Sanitation", color: "#22c55e", description: "Cleanliness" },
-  ];
-
-  return (
-    <div className="bg-white rounded-lg shadow-md p-2 mb-2 text-xs">
-      <h3 className=" text-gray-800 mb-2 text-md font-bold">Map Legend</h3>
-      <div className="flex gap-4 justify-evenly">
-        {categories.map((category) => (
-          <div key={category.name} className="flex items-center gap-2">
-            <div
-              className="w-4 h-4 rounded-full flex-shrink-0"
-              style={{ backgroundColor: category.color }}
-            ></div>
-            <div className="flex flex-col">
-              <span className="font-medium text-gray-700">{category.name}</span>
-              <span className="text-gray-500">{category.description}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// Recenter Button Component
-const RecenterButton = ({ onClick }) => {
-  return (
-    <button
-      onClick={onClick}
-      className="absolute bottom-4 left-4 bg-white p-2 rounded-lg shadow-md z-[1000] hover:bg-gray-100 transition-colors"
-      title="Recenter Map"
-    >
-      <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    </button>
-  );
-};
-
-// Custom Map Component using Leaflet
-// Custom Map Component using Leaflet
-const CustomMap = ({ issues, selectedIssue, onMarkerClick, onRecenter }) => {
+// Map Component
+const MapComponent = ({ issues, selectedIssue, onMarkerClick, onMapClick }) => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
 
   useEffect(() => {
     // Initialize map
-    if (!mapInstanceRef.current) {
+    if (!mapInstanceRef.current && mapRef.current) {
       mapInstanceRef.current = L.map(mapRef.current).setView(
         [19.0804, 83.8088],
         14
@@ -312,16 +89,31 @@ const CustomMap = ({ issues, selectedIssue, onMarkerClick, onRecenter }) => {
         subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
         attribution: '&copy; Google Maps'
       }).addTo(mapInstanceRef.current);
+
+      // Add click event listener to the map
+      mapInstanceRef.current.on('click', (e) => {
+        // Check if the click was directly on the map (not on a marker)
+        if (!e.originalEvent._stopped) {
+          onMapClick();
+        }
+      });
     }
 
     // Clear existing markers
     markersRef.current.forEach((marker) => {
-      mapInstanceRef.current.removeLayer(marker);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.removeLayer(marker);
+      }
     });
     markersRef.current = [];
 
     // Add markers for each issue
     issues.forEach((issue) => {
+      if (!issue.location || !issue.location.latitude || !issue.location.longitude) {
+        console.warn('Issue missing location data:', issue);
+        return;
+      }
+
       const isSelected = selectedIssue && selectedIssue._id === issue._id;
       const marker = L.marker(
         [issue.location.latitude, issue.location.longitude],
@@ -330,381 +122,623 @@ const CustomMap = ({ issues, selectedIssue, onMarkerClick, onRecenter }) => {
 
       // Determine status based on progress
       const getStatusFromProgress = (progress) => {
-        if (progress.resolved.completed) return "Resolved";
-        if (progress.inProgress.completed) return "In Progress";
-        if (progress.verified.completed) return "Verified";
+        if (!progress) return "Pending";
+        if (progress.resolved?.completed) return "Resolved";
+        if (progress.inProgress?.completed) return "In Progress";
+        if (progress.verified?.completed) return "Verified";
         return "Pending";
       };
 
       const status = getStatusFromProgress(issue.progress);
 
       marker.bindPopup(`
-        <div class="p-2">
-          <h3 class="font-semibold">${issue.title}</h3>
-          <p>Category: ${issue.category}</p>
-          <p>Status: ${status}</p>
-          <p>Verifications: ${issue.verifications}</p>
+        <div class="p-2 min-w-[200px]">
+          <h3 class="font-semibold text-lg mb-2">${issue.title || 'No Title'}</h3>
+          <p class="text-sm"><strong>Category:</strong> ${issue.category || 'N/A'}</p>
+          <p class="text-sm"><strong>Status:</strong> ${status}</p>
+          <p class="text-sm"><strong>Reported:</strong> ${new Date(issue.createdAt).toLocaleDateString()}</p>
         </div>
       `);
 
-      marker.on("click", () => {
+      marker.on("click", (e) => {
+        // Stop the event from propagating to the map
+        e.originalEvent._stopped = true;
         onMarkerClick(issue);
+        
+        // Close other popups and open this one
+        markersRef.current.forEach(m => {
+          if (m !== marker) m.closePopup();
+        });
+        marker.openPopup();
       });
 
       markersRef.current.push(marker);
     });
 
-    if (selectedIssue) {
+    // Fit map to show all markers if there are issues and no issue is selected
+    if (issues.length > 0 && !selectedIssue) {
+      const group = new L.featureGroup(markersRef.current);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1), {
+          maxZoom: 14,
+        });
+      }
+    }
+
+    // If a specific issue is selected, center the map on that issue
+    if (selectedIssue && selectedIssue.location) {
       mapInstanceRef.current.setView(
         [selectedIssue.location.latitude, selectedIssue.location.longitude],
-        14
+        16 // Zoom in closer when showing single issue
       );
-    } else if (issues.length === 1) {
-      mapInstanceRef.current.setView(
-        [issues[0].location.latitude, issues[0].location.longitude],
-        14
-      );
-    } else if (issues.length > 1) {
-      const group = new L.featureGroup(markersRef.current);
-      mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1), {
-        maxZoom: 14,
-      });
     }
 
     return () => {
       // Cleanup function to prevent memory leaks
       markersRef.current.forEach((marker) => {
-        mapInstanceRef.current.removeLayer(marker);
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.removeLayer(marker);
+        }
       });
     };
-  }, [issues, selectedIssue, onMarkerClick]);
-
-  const handleRecenter = () => {
-    if (issues.length === 0) {
-      mapInstanceRef.current.setView([19.0804, 83.8088], 14);
-    } else if (issues.length === 1) {
-      mapInstanceRef.current.setView(
-        [issues[0].location.latitude, issues[0].location.longitude],
-        14
-      );
-    } else {
-      const group = new L.featureGroup(markersRef.current);
-      mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1), {
-        maxZoom: 14,
-      });
-    }
-    
-    if (onRecenter) {
-      onRecenter();
-    }
-  };
+  }, [issues, selectedIssue, onMarkerClick, onMapClick]);
 
   return (
-    <div className="relative bg-white rounded-xl shadow-md overflow-hidden h-[600px]">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
       <div
         ref={mapRef}
         className="w-full h-full rounded-xl"
-        style={{ zIndex: 1 }}
+        style={{ minHeight: '500px' }}
+        onClick={(e) => {
+          // Handle direct div click as map click
+          if (e.target === mapRef.current) {
+            onMapClick();
+          }
+        }}
       />
-      <RecenterButton onClick={handleRecenter} />
     </div>
   );
 };
 
-// Video player modal component
-const VideoModal = ({ isOpen, onClose, videoUrl, title }) => {
-  if (!isOpen) return null;
+// Map Legend Component
+const MapLegend = () => {
+  const categories = [
+    { name: "Street", color: "#ef4444", description: "Road issues" },
+    { name: "Water", color: "#3b82f6", description: "Water problems" },
+    { name: "Electricity", color: "#eab308", description: "Power issues" },
+    { name: "Sanitation", color: "#22c55e", description: "Cleanliness" },
+  ];
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-      <div className="bg-white rounded-lg p-4 max-w-4xl w-full max-h-screen overflow-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl"
-          >
-            ×
-          </button>
-        </div>
-        <video controls className="w-full h-96 bg-black rounded" src={videoUrl}>
-          Your browser does not support the video tag.
-        </video>
+    <div className="bg-white rounded-lg shadow-md p-3 mb-4 text-xs">
+      <h3 className="text-gray-800 mb-2 text-sm font-bold">Map Legend</h3>
+      <div className="grid grid-cols-2 gap-2">
+        {categories.map((category) => (
+          <div key={category.name} className="flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full flex-shrink-0"
+              style={{ backgroundColor: category.color }}
+            ></div>
+            <div className="flex flex-col">
+              <span className="font-medium text-gray-700">{category.name}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default function AdminIssues() {
+const Issues = () => {
   const [issuesData, setIssuesData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [statusCount, setStatusCount] = useState({
+    pending: 0,
+    inProgress: 0,
+    resolved: 0,
+  });
+  const [mapView, setMapView] = useState(false);
   const [filters, setFilters] = useState({
-    category: "All",
-    status: "All",
-    sortBy: "newest",
+    status: "",
+    category: "",
   });
-
+  const [filteredIssues, setFilteredIssues] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedIssue, setSelectedIssue] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
+  const [displayedIssues, setDisplayedIssues] = useState([]);
 
-  const [videoModal, setVideoModal] = useState({
-    isOpen: false,
-    videoUrl: "",
-    title: "",
-  });
-
-  // Fetch issues from API
   useEffect(() => {
     const fetchIssues = async () => {
       try {
-        setLoading(true);
         const res = await api.get("/user-issue/all-issue");
-        
-        if (res.data.success) {
-          setIssuesData(res.data.issues);
-        } else {
-          setError("Failed to fetch issues");
-        }
+        const issues = res.data.issues || [];
+        setIssuesData(issues);
+        setFilteredIssues(issues);
+        setDisplayedIssues(issues);
+        setStatusCount(countByStatus(issues));
+
+        const uniqueCategories = [
+          ...new Set(issues.map((issue) => issue.category)),
+        ].filter(Boolean);
+        setCategories(uniqueCategories);
       } catch (err) {
-        setError(err.message || "Error fetching issues");
-      } finally {
-        setLoading(false);
+        console.log(err);
       }
     };
-
     fetchIssues();
   }, []);
 
-  // Get unique categories and statuses for filters
-  const categories = [...new Set(issuesData.map((issue) => issue.category))];
-  const statuses = ["Pending", "Verified", "In Progress", "Resolved"];
+  function countByStatus(issues) {
+    const statusCount = {
+      pending: 0,
+      inProgress: 0,
+      resolved: 0,
+    };
 
-  // Filter and sort issues
-  const filteredIssues = issuesData
-    .filter((issue) => {
-      // Determine status based on progress
-      const getStatusFromProgress = (progress) => {
-        if (progress.resolved.completed) return "Resolved";
-        if (progress.inProgress.completed) return "In Progress";
-        if (progress.verified.completed) return "Verified";
-        return "Pending";
-      };
-      
-      const status = getStatusFromProgress(issue.progress);
-      
-      return (
-        (filters.category === "All" || issue.category === filters.category) &&
-        (filters.status === "All" || status === filters.status)
-      );
-    })
-    .sort((a, b) => {
-      switch (filters.sortBy) {
-        case "newest":
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        case "oldest":
-          return new Date(a.createdAt) - new Date(b.createdAt);
-        case "verifications":
-          return b.verifications - a.verifications;
-        default:
-          return 0;
+    issues.forEach((issue) => {
+      const { reported, inProgress, resolved } = issue.progress || {};
+      if (resolved?.completed) {
+        statusCount.resolved++;
+      } else if (inProgress?.completed) {
+        statusCount.inProgress++;
+      } else if (reported?.completed) {
+        statusCount.pending++;
       }
     });
 
+    return statusCount;
+  }
+
+  // Filter issues based on status and category
+  const applyFilters = (newFilters = filters) => {
+    const filtered = issuesData.filter((issue) => {
+      const matchesStatus = newFilters.status
+        ? newFilters.status === "pending"
+          ? issue.progress.reported?.completed &&
+            !issue.progress.inProgress?.completed
+          : newFilters.status === "inProgress"
+          ? issue.progress.inProgress?.completed &&
+            !issue.progress.resolved?.completed
+          : newFilters.status === "resolved"
+          ? issue.progress.resolved?.completed
+          : true
+        : true;
+
+      const matchesCategory = newFilters.category
+        ? issue.category === newFilters.category
+        : true;
+
+      return matchesStatus && matchesCategory;
+    });
+
+    setFilteredIssues(filtered);
+    setDisplayedIssues(filtered);
+    setSelectedIssue(null);
+  };
+
+  const handleFilterChange = (filterType, value) => {
+    const newFilters = {
+      ...filters,
+      [filterType]: value,
+    };
+    setFilters(newFilters);
+    applyFilters(newFilters);
+  };
+
+  const clearFilters = () => {
+    const resetFilters = { status: "", category: "" };
+    setFilters(resetFilters);
+    setFilteredIssues(issuesData);
+    setDisplayedIssues(issuesData);
+    setSelectedIssue(null);
+  };
+
+  const validateVideoUrl = (url) => {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch (error) {
+      console.error("Invalid video URL:", url);
+      return false;
+    }
+  };
+
   const openVideoModal = (videoUrl, title) => {
-    setVideoModal({ isOpen: true, videoUrl, title });
+    if (validateVideoUrl(videoUrl)) {
+      setSelectedVideo({ url: videoUrl, title });
+    } else {
+      console.error("Invalid video URL:", videoUrl);
+      alert("The video URL is invalid or unavailable.");
+    }
   };
 
   const closeVideoModal = () => {
-    setVideoModal({ isOpen: false, videoUrl: "", title: "" });
+    setSelectedVideo(null);
   };
 
   const handleIssueSelect = (issue) => {
     setSelectedIssue(issue);
+    setDisplayedIssues([issue]);
   };
 
   const handleMarkerClick = (issue) => {
     setSelectedIssue(issue);
-    setShowDetails(true);
+    setDisplayedIssues([issue]);
   };
 
-  const handleRecenter = () => {
-    setSelectedIssue(null);
+  const handleMapClick = () => {
+    // Only reset if we're currently showing a single issue
+    if (selectedIssue) {
+      setDisplayedIssues(filteredIssues);
+      setSelectedIssue(null);
+    }
   };
 
-  // Count issues by status
-  const countByStatus = (status) => {
-    return issuesData.filter(issue => {
-      const getStatusFromProgress = (progress) => {
-        if (progress.resolved.completed) return "Resolved";
-        if (progress.inProgress.completed) return "In Progress";
-        if (progress.verified.completed) return "Verified";
-        return "Pending";
-      };
-      
-      return getStatusFromProgress(issue.progress) === status;
-    }).length;
-  };
+  // Handle click outside modal to close
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeVideoModal();
+      }
+    };
 
-  if (loading) {
-    return (
-      <div className="p-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading issues...</p>
-        </div>
-      </div>
-    );
-  }
+    if (selectedVideo) {
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
 
-  if (error) {
-    return (
-      <div className="p-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 text-4xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-800">Error Loading Issues</h2>
-          <p className="text-gray-600 mt-2">{error}</p>
-          <button 
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            onClick={() => window.location.reload()}
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [selectedVideo]);
+
+  // Update displayed issues when filteredIssues changes (only if no issue is selected)
+  useEffect(() => {
+    if (!selectedIssue) {
+      setDisplayedIssues(filteredIssues);
+    }
+  }, [filteredIssues, selectedIssue]);
+
+  const stats = [
+    {
+      title: "Total Issues",
+      icon: "📊",
+      gradient: "from-blue-500 to-indigo-600",
+      textColor: "text-white",
+      value: issuesData.length,
+    },
+    {
+      title: "Pending",
+      icon: "⏳",
+      gradient: "from-yellow-400 to-orange-500",
+      textColor: "text-black",
+      value: statusCount.pending,
+    },
+    {
+      title: "In Progress",
+      icon: "⚡",
+      gradient: "from-cyan-400 to-blue-500",
+      textColor: "text-white",
+      value: statusCount.inProgress,
+    },
+    {
+      title: "Resolved",
+      icon: "✅",
+      gradient: "from-green-400 to-emerald-600",
+      textColor: "text-white",
+      value: statusCount.resolved,
+    },
+  ];
 
   return (
     <div className="p-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
       <div className="w-full mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Community Issues Dashboard</h1>
-            <p className="text-gray-600 mt-1">
-              Monitor and manage reported community issues
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
-              Export Data
-            </button>
-          </div>
+        {/* Header */}
+        <Header />
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {stats.map((stat, index) => (
+            <Card
+              key={index}
+              title={stat.title}
+              icon={stat.icon}
+              gradient={stat.gradient}
+              textColor={stat.textColor}
+              value={stat.value}
+            />
+          ))}
         </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-  {/* Total Issues */}
-  <div className="rounded-lg shadow-md p-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg transition">
-    <div className="flex items-center justify-between">
-      <h3 className="text-sm font-medium uppercase tracking-wide opacity-90">
-        Total Issues
-      </h3>
-      <div className="bg-white/20 p-2 rounded-full">
-        📊
-      </div>
-    </div>
-    <p className="text-3xl font-extrabold mt-2">{issuesData.length}</p>
-  </div>
+        {/* Filter Section */}
+        <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-4 mb-6 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 to-cyan-50/10 pointer-events-none"></div>
 
-  {/* Pending */}
-  <div className="rounded-lg shadow-md p-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black hover:shadow-lg transition">
-    <div className="flex items-center justify-between">
-      <h3 className="text-sm font-medium uppercase tracking-wide opacity-90">
-        Pending
-      </h3>
-      <div className="bg-black/10 p-2 rounded-full">
-        ⏳
-      </div>
-    </div>
-    <p className="text-3xl font-extrabold mt-2">{countByStatus("Pending")}</p>
-  </div>
+          <div className="flex flex-col md:flex-row gap-4 items-end relative z-10">
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+                <svg
+                  className="w-4 h-4 text-blue-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
+                  />
+                </svg>
+                Filter by Status
+              </label>
+              <select
+                value={filters.status}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
+                className="w-full p-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:border-gray-300 hover:shadow-md"
+              >
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="inProgress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
 
-  {/* In Progress */}
-  <div className="rounded-lg shadow-md p-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-white hover:shadow-lg transition">
-    <div className="flex items-center justify-between">
-      <h3 className="text-sm font-medium uppercase tracking-wide opacity-90">
-        In Progress
-      </h3>
-      <div className="bg-white/20 p-2 rounded-full">
-        ⚡
-      </div>
-    </div>
-    <p className="text-3xl font-extrabold mt-2">{countByStatus("In Progress")}</p>
-  </div>
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+                <svg
+                  className="w-4 h-4 text-blue-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
+                Filter by Category
+              </label>
+              <select
+                value={filters.category}
+                onChange={(e) => handleFilterChange("category", e.target.value)}
+                className="w-full p-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:border-gray-300 hover:shadow-md"
+              >
+                <option value="">All Categories</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-  {/* Resolved */}
-  <div className="rounded-lg shadow-md p-4 bg-gradient-to-r from-green-400 to-emerald-600 text-white hover:shadow-lg transition">
-    <div className="flex items-center justify-between">
-      <h3 className="text-sm font-medium uppercase tracking-wide opacity-90">
-        Resolved
-      </h3>
-      <div className="bg-white/20 p-2 rounded-full">
-        ✅
-      </div>
-    </div>
-    <p className="text-3xl font-extrabold mt-2">{countByStatus("Resolved")}</p>
-  </div>
-</div>
-
-
-
-        <FilterBar
-          filters={filters}
-          setFilters={setFilters}
-          categories={categories}
-          statuses={statuses}
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Issues List */}
-          <div className="lg:col-span-1 space-y-4">
-            <div className="bg-white rounded-lg shadow p-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                Reported Issues ({filteredIssues.length})
-              </h2>
-              <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                {filteredIssues.length > 0 ? (
-                  filteredIssues.map((issue) => (
-                    <IssueCard
-                      key={issue._id}
-                      issue={issue}
-                      onSelect={handleIssueSelect}
-                      isSelected={
-                        selectedIssue && selectedIssue._id === issue._id
-                      }
-                      onOpenVideo={openVideoModal}
-                    />
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-center py-4">
-                    No issues match the selected filters
-                  </p>
-                )}
-              </div>
+            <div>
+              <button
+                onClick={clearFilters}
+                className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 flex items-center gap-1.5"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                Clear Filters
+              </button>
             </div>
           </div>
 
-          {/* Map */}
-          <div className="lg:col-span-2">
-             {/* Map Legend */}
-             <MapLegend />
-            <CustomMap
-              issues={filteredIssues}
-              selectedIssue={selectedIssue}
-              onMarkerClick={handleMarkerClick}
-              onRecenter={handleRecenter}
-            />
-          </div>
+          {/* Enhanced Filter Results Info */}
+          <FilterResultsInfo
+            filteredIssues={filteredIssues}
+            issuesData={issuesData}
+            filters={filters}
+          />
         </div>
 
-        {/* Video Modal */}
-        <VideoModal
-          isOpen={videoModal.isOpen}
-          onClose={closeVideoModal}
-          videoUrl={videoModal.videoUrl}
-          title={videoModal.title}
-        />
+        {/* Toggle Button */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-800">
+            {mapView ? "Map View" : "Table View"}
+          </h2>
+          <button 
+            onClick={() => {
+              setMapView(!mapView);
+              if (!mapView) {
+                setDisplayedIssues(filteredIssues);
+                setSelectedIssue(null);
+              }
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 flex items-center gap-2"
+          >
+            {mapView ? (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Show Table View
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                Show Map View
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Main Content Area */}
+        {mapView ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Issues List Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow-lg p-4 h-full">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Issues ({displayedIssues.length})
+                  {selectedIssue && (
+                    <span className="text-sm text-blue-600 ml-2">
+                      (Showing selected issue)
+                    </span>
+                  )}
+                </h3>
+                <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                  {displayedIssues.length > 0 ? (
+                    displayedIssues.map((issue) => (
+                      <div
+                        key={issue._id}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
+                          selectedIssue && selectedIssue._id === issue._id
+                            ? "border-blue-500 bg-blue-50 shadow-md"
+                            : "border-gray-200 bg-gray-50 hover:bg-gray-100"
+                        }`}
+                        onClick={() => handleIssueSelect(issue)}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-medium text-gray-900 line-clamp-2">
+                            {issue.title}
+                          </h4>
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-semibold ${
+                              issue.progress?.resolved?.completed
+                                ? "bg-green-100 text-green-700"
+                                : issue.progress?.inProgress?.completed
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {issue.progress?.resolved?.completed
+                              ? "Resolved"
+                              : issue.progress?.inProgress?.completed
+                              ? "In Progress"
+                              : "Pending"}
+                          </span>
+                        </div>
+
+                        <p className="text-sm text-gray-600 mb-1">
+                          Category: {issue.category}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Reported: {new Date(issue.createdAt).toLocaleDateString()}
+                        </p>
+
+                        {issue.videoUrl && (
+                          <div className="mt-2 w-full bg-black rounded-lg overflow-hidden">
+                            <video
+                              src={issue.videoUrl}
+                              controls
+                              className="w-full h-48 object-contain"
+                            >
+                              Your browser does not support the video tag.
+                            </video>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-center py-4">
+                      No issues found matching the current filters
+                    </p>
+                  )}
+                </div>
+                {selectedIssue && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-700 text-center">
+                      Click anywhere on the map to show all filtered issues
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Map Area */}
+            <div className="lg:col-span-2">
+              <MapLegend />
+              <MapComponent
+                issues={displayedIssues}
+                selectedIssue={selectedIssue}
+                onMarkerClick={handleMarkerClick}
+                onMapClick={handleMapClick}
+              />
+            </div>
+          </div>
+        ) : (
+          // Table View (unchanged)
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Issue Details
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Reported By
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredIssues.length > 0 ? (
+                    filteredIssues.map((issue) => (
+                      <IssueRow
+                        key={issue._id}
+                        issue={issue}
+                        onWatchVideo={openVideoModal}
+                      />
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="6"
+                        className="px-6 py-4 text-center text-gray-500"
+                      >
+                        No issues found matching the current filters
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Video Modal */}
+      {selectedVideo && (
+        <VideoModal
+          selectedVideo={selectedVideo}
+          closeVideoModal={closeVideoModal}
+        />
+      )}
     </div>
   );
-}
+};
+
+export default Issues;
