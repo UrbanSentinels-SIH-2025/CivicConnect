@@ -3,17 +3,28 @@ import { useParams, Link } from "react-router-dom";
 import api from "../../api/axios";
 import { getStatusCount } from "../../utils/statusHelper";
 import { NavLink } from "react-router-dom";
+import useDepartmentIssueStore from "../../store/departmentIssue";
 
 const Departements = () => {
   const { departmentName } = useParams();
-  const [issues, setIssues] = useState([]);
-  const [filteredIssues, setFilteredIssues] = useState([]);
   const [sortOrder, setSortOrder] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [selectedIssueId, setSelectedIssueId] = useState(null);
-  const [locationNames, setLocationNames] = useState({}); // Store location names by issue ID
+  const [locationNames, setLocationNames] = useState({});
+  
+  const { 
+    setDepartment, 
+    departmentIssues, 
+    updateIssueProgress 
+  } = useDepartmentIssueStore();
+
+  // Use departmentIssues from Zustand store instead of local state
+  const issues = departmentIssues;
+  
+  // Filtered issues based on current filter
+  const [filteredIssues, setFilteredIssues] = useState(departmentIssues);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,10 +33,8 @@ const Departements = () => {
         const response = await api.get(
           `/user-issue/department-issues/${departmentName}`
         );
-        // Make sure we're accessing the correct data structure
         const issuesData = response.data.issues || response.data || [];
-        setIssues(issuesData);
-        setFilteredIssues(issuesData);
+        setDepartment(issuesData);
         
         // Fetch location names for all issues
         fetchLocationNames(issuesData);
@@ -41,11 +50,20 @@ const Departements = () => {
     }
   }, [departmentName]);
 
+  // Update filteredIssues when departmentIssues changes
+  useEffect(() => {
+    setFilteredIssues(departmentIssues);
+    
+    // Re-fetch location names when issues change
+    if (departmentIssues.length > 0) {
+      fetchLocationNames(departmentIssues);
+    }
+  }, [departmentIssues]);
+
   // Function to fetch location names for all issues
   const fetchLocationNames = async (issuesData) => {
     const names = {};
     
-    // Create an array of promises for all location fetches
     const locationPromises = issuesData.map(async (issue) => {
       try {
         const name = await getLocationName(issue);
@@ -56,7 +74,6 @@ const Departements = () => {
       }
     });
 
-    // Wait for all location fetches to complete
     await Promise.all(locationPromises);
     setLocationNames(names);
   };
@@ -119,40 +136,13 @@ const Departements = () => {
 
       const response = await api.patch(`/user-issue/department-issues/progress`, payload);
       
-      setIssues(prev =>
-        prev.map(issue =>
-          issue._id === issueId
-            ? { 
-                ...issue, 
-                progress: { 
-                  ...issue.progress, 
-                  inProgress: { 
-                    completed: true, 
-                    date: new Date().toISOString() 
-                  } 
-                } 
-              }
-            : issue
-        )
-      );
-
-      // Update filtered issues as well
-      setFilteredIssues(prev =>
-        prev.map(issue =>
-          issue._id === issueId
-            ? { 
-                ...issue, 
-                progress: { 
-                  ...issue.progress, 
-                  inProgress: { 
-                    completed: true, 
-                    date: new Date().toISOString() 
-                  } 
-                } 
-              }
-            : issue
-        )
-      );
+      // Update the issue progress in Zustand store
+      updateIssueProgress(issueId, {
+        inProgress: { 
+          completed: true, 
+          date: new Date().toISOString() 
+        }
+      });
 
       setShowModal(false);
       setSelectedIssueId(null);
@@ -184,7 +174,6 @@ const Departements = () => {
     const { latitude, longitude } = issue.location;
     
     try {
-      // Using OpenStreetMap Nominatim v2
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
       );
@@ -192,12 +181,7 @@ const Departements = () => {
       const data = await response.json();
       
       if (data && data.address) {
-        const address = data.address;
-        console.log(data)
-        // Return the most relevant location name with priority
-        return data.display_name || 
-             
-               `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+        return data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
       }
       
       return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;

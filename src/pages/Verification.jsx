@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheckCircle, FaTimesCircle, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaFilter, FaSort, FaSearch, FaPlay, FaCheck, FaExclamationTriangle, FaClock, FaThumbsUp, FaBan, FaUsers, FaFlag, FaExclamation } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaFilter, FaSort, FaSearch, FaPlay, FaCheck, FaExclamationTriangle, FaClock, FaThumbsUp, FaBan, FaUsers, FaFlag, FaExclamation, FaSpinner } from 'react-icons/fa';
 import api from '../api/axios';
 import useAuthStore from '../store/useAuthStore';
 
@@ -15,11 +15,15 @@ const Verification = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [playingVideo, setPlayingVideo] = useState(null);
   const [verifying, setVerifying] = useState(false);
+  const [loadingIssues, setLoadingIssues] = useState({}); // Track loading state per issue
 
   // Get user from auth store
   const { user } = useAuthStore();
 
   const handleVerify = async (id, type) => {
+    // Set loading state for this specific issue
+    setLoadingIssues(prev => ({ ...prev, [id]: true }));
+    
     try {
       const { data } = await api.post(
         "/user-issue/verify-issues",
@@ -31,8 +35,35 @@ const Verification = () => {
         { withCredentials: true }
       );
       console.log("Verification response:", data);
+      
+      // Update the issues list with the new verification data
+      const updatedIssues = issues.map(issue => {
+        if (issue._id === id) {
+          const updatedVerifications = { ...issue.verifications };
+          if (type === "real") {
+            updatedVerifications.real = [...(updatedVerifications.real || []), user._id];
+            // Remove from fake if user was there
+            if (updatedVerifications.fake) {
+              updatedVerifications.fake = updatedVerifications.fake.filter(userId => userId !== user._id);
+            }
+          } else if (type === "fake") {
+            updatedVerifications.fake = [...(updatedVerifications.fake || []), user._id];
+            // Remove from real if user was there
+            if (updatedVerifications.real) {
+              updatedVerifications.real = updatedVerifications.real.filter(userId => userId !== user._id);
+            }
+          }
+          return { ...issue, verifications: updatedVerifications };
+        }
+        return issue;
+      });
+      
+      setIssues(updatedIssues);
     } catch (error) {
       console.error("Error verifying issue:", error);
+    } finally {
+      // Remove loading state regardless of success/failure
+      setLoadingIssues(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -217,6 +248,14 @@ const Verification = () => {
     );
   };
 
+  // Loading spinner component
+  const LoadingSpinner = () => (
+    <div className="flex items-center justify-center">
+      <FaSpinner className="animate-spin mr-2" />
+      <span>Processing...</span>
+    </div>
+  );
+
   return (
     <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
       {/* Header */}
@@ -366,6 +405,7 @@ const Verification = () => {
               const userMarkedFake = hasUserMarkedFake(issue);
               const realVerifications = issue.verifications?.real?.length || 0;
               const fakeVerifications = issue.verifications?.fake?.length || 0;
+              const isLoading = loadingIssues[issue._id];
               
               return (
                 <div 
@@ -428,19 +468,31 @@ const Verification = () => {
                       <div className="flex gap-3 mt-4">
                         <button
                           onClick={() => handleVerify(issue._id,"real")}
-                          disabled={verifying || userVerified || userMarkedFake}
-                          className={`flex items-center gap-2 ${userVerified ? 'bg-green-800' : 'bg-green-600 hover:bg-green-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50`}
+                          disabled={isLoading || userVerified || userMarkedFake}
+                          className={`flex items-center justify-center gap-2 ${userVerified ? 'bg-green-800' : 'bg-green-600 hover:bg-green-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 min-w-[140px]`}
                         >
-                          <FaThumbsUp />
-                          {userVerified ? 'Already Verified' : 'Verify Issue'}
+                          {isLoading ? (
+                            <LoadingSpinner />
+                          ) : (
+                            <>
+                              <FaThumbsUp />
+                              {userVerified ? 'Already Verified' : 'Verify Issue'}
+                            </>
+                          )}
                         </button>
                         <button
                           onClick={() => handleVerify(issue._id,"fake")}
-                          disabled={verifying || userMarkedFake || userVerified}
-                          className={`flex items-center gap-2 ${userMarkedFake ? 'bg-red-800' : 'bg-red-600 hover:bg-red-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50`}
+                          disabled={isLoading || userMarkedFake || userVerified}
+                          className={`flex items-center justify-center gap-2 ${userMarkedFake ? 'bg-red-800' : 'bg-red-600 hover:bg-red-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 min-w-[140px]`}
                         >
-                          <FaBan />
-                          {userMarkedFake ? 'Reported as Fake' : 'Mark as Fake'}
+                          {isLoading ? (
+                            <LoadingSpinner />
+                          ) : (
+                            <>
+                              <FaBan />
+                              {userMarkedFake ? 'Reported as Fake' : 'Mark as Fake'}
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -457,6 +509,7 @@ const Verification = () => {
               const userMarkedFake = hasUserMarkedFake(issue);
               const realVerifications = issue.verifications?.real?.length || 0;
               const fakeVerifications = issue.verifications?.fake?.length || 0;
+              const isLoading = loadingIssues[issue._id];
               
               return (
                 <div 
@@ -513,19 +566,31 @@ const Verification = () => {
                     <div className="flex flex-col gap-2 mt-2">
                       <button
                         onClick={() => handleVerify(issue._id,"real")}
-                        disabled={verifying || userVerified || userMarkedFake}
+                        disabled={isLoading || userVerified || userMarkedFake}
                         className={`flex items-center justify-center gap-2 ${userVerified ? 'bg-green-800' : 'bg-green-600 hover:bg-green-700'} text-white text-sm font-medium py-2 px-3 rounded-md transition-colors disabled:opacity-50`}
                       >
-                        <FaThumbsUp />
-                        {userVerified ? 'Verified' : 'Verify'}
+                        {isLoading ? (
+                          <LoadingSpinner />
+                        ) : (
+                          <>
+                            <FaThumbsUp />
+                            {userVerified ? 'Verified' : 'Verify'}
+                          </>
+                        )}
                       </button>
                       <button
                         onClick={() => handleVerify(issue._id,"fake")}
-                        disabled={verifying || userMarkedFake || userVerified}
+                        disabled={isLoading || userMarkedFake || userVerified}
                         className={`flex items-center justify-center gap-2 ${userMarkedFake ? 'bg-red-800' : 'bg-red-600 hover:bg-red-700'} text-white text-sm font-medium py-2 px-3 rounded-md transition-colors disabled:opacity-50`}
                       >
-                        <FaBan />
-                        {userMarkedFake ? 'Reported Fake' : 'Mark Fake'}
+                        {isLoading ? (
+                          <LoadingSpinner />
+                        ) : (
+                          <>
+                            <FaBan />
+                            {userMarkedFake ? 'Reported Fake' : 'Mark Fake'}
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
