@@ -30,8 +30,8 @@ const Header = () => {
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-white/98 backdrop-blur-xl shadow-lg py-3 border-b border-gray-100"
-          : "bg-white py-3"
+          ? "bg-black backdrop-blur-xl shadow-lg py-3 border-b border-black"
+          : "bg-black py-3"
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -58,7 +58,7 @@ const Header = () => {
 </div>
 
           </motion.div>
-          <span className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <span className=" text-2xl bg-gradient-to-r font-bbh from-blue-500 to-indigo-400 bg-clip-text text-transparent">
             CivicConnect
           </span>
         </motion.div>
@@ -75,10 +75,10 @@ const Header = () => {
               >
                 <motion.a
                   href={item.href}
-                  className={`px-4 py-2 font-medium transition-all duration-300 rounded-lg relative ${
+                  className={`px-4 py-2 font-bbh font-medium transition-all duration-300 rounded-lg relative ${
                     activeItem === item.name
-                      ? "text-indigo-600"
-                      : "text-gray-700 hover:text-indigo-500"
+                      ? "text-indigo-400"
+                      : "text-white hover:text-indigo-200"
                   }`}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -109,7 +109,7 @@ const Header = () => {
               }}
               whileTap={{ scale: 0.98 }}
             >
-              <NavLink to="/login" className="relative z-10 flex items-center">
+              <NavLink to="/login" className="relative font-bbh z-10 flex items-center">
                 Login <RiArrowRightUpLine className="ml-1" />
               </NavLink>
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -119,7 +119,7 @@ const Header = () => {
 
         {/* Mobile Menu Button */}
         <motion.button
-          className="md:hidden p-3 rounded-xl bg-gray-50 text-gray-800 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-300"
+          className="md:hidden p-3 rounded-xl text-blue-800 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-300"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -136,18 +136,18 @@ const Header = () => {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
-              className="md:hidden fixed inset-0 top-[72px] bg-white z-40 shadow-lg"
+              className="md:hidden fixed inset-0 top-[72px] bg-black z-40 shadow-lg"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
-              <div className="container mx-auto px-4 py-6 flex flex-col space-y-1 bg-white">
+              <div className="container mx-auto px-4 py-6 flex flex-col space-y-1 bg-black">
                 {navItems.map((item, index) => (
                   <motion.a
                     key={item.name}
                     href={item.href}
-                    className="text-gray-800 font-medium text-lg py-4 px-4 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-300 bg-white relative z-10"
+                    className="text-blue-800 font-agu font-extrabold text-lg py-4 px-4 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-300  relative z-10"
                     onClick={() => setMobileMenuOpen(false)}
                     whileTap={{ scale: 0.95 }}
                     initial={{ opacity: 0, x: -20 }}

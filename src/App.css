@@ -1,93 +1,22 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Agu+Display&family=BBH+Sans+Hegarty&family=Satisfy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap');
+@font-face{
+   font-family: Agu;
+   src: url('../src/assets/fonts/AguDisplay-Regular-VariableFont_MORF.ttf')
+}
+
+@font-face{
+   font-family: Bbh;
+   src: url('../src/assets/fonts/BBHSansHegarty-Regular.ttf');
+   font-weight: 400;
+}
+
+
 @import "tailwindcss";
 
-
-
-.stats-card {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
+@theme{
+  --font-agu:Agu,"sans-serif";
+  --font-bbh:Bbh,"sans-serif";
+  --font-garamond:EB Garamond,"sans-serif";
 }
-
-.card {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-}
-
-.quick-action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  border: 2px dashed #e5e7eb;
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.quick-action-btn:hover {
-  border-color: #2563eb;
-  background-color: #eff6ff;
-}
-
-.map-container {
-  height: 200px;
-  background-color: #e5e7eb;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.issue-card {
-  transition: all 0.2s ease;
-  border-left: 3px solid;
-}
-
-.issue-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.status-progress {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.status-resolved {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.notification-item {
-  border-left: 3px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.notification-item.unread {
-  border-left-color: #2563eb;
-  background-color: #f8fafc;
-}
-
-.verification-item {
-  transition: all 0.2s ease;
-}
-
-.verification-item:hover {
-  background-color: #f8fafc;
-}
-
-
-
-
-
-
-@import "leaflet/dist/leaflet.css";
