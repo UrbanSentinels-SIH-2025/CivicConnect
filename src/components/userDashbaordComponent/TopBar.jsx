@@ -40,13 +40,13 @@ const handleLogout = async () => {
 
 
   return (
-    <header className="w-full fixed h-16 z-1000 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm py-9">
+    <header className="w-full fixed h-16 z-1000 bg-[#0a1045] border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm py-9">
       
       {/* Left side: Logo & Menu */}
       <div className="flex items-center gap-4">
         {/* Hamburger Menu */}
         <button
-          className="group relative hidden md:block text-gray-600 hover:text-blue-600 transition p-2 rounded-lg hover:bg-blue-50"
+          className="group relative hidden md:block text-[#CBEFF1]  hover:text-blue-600 transition p-2 rounded-lg hover:bg-blue-50"
           onClick={onMenuClick}   
         >
           {isSidebarOpen ? <TbLayoutSidebarLeftCollapse className="text-2xl" /> : <TbLayoutSidebarRightCollapse className="text-2xl" />}
@@ -64,7 +64,7 @@ const handleLogout = async () => {
           >
             <FaCity className="text-white text-lg sm:text-xl" />
           </motion.div>
-          <h1 className="text-lg sm:text-xl font-bold text-gray-800">
+          <h1 className="text-lg sm:text-xl  text-[#CBEFF1] font-bbh">
             <span className="hidden md:inline">CivicConnect </span>
             Citizen Dashboard
           </h1>
@@ -77,9 +77,9 @@ const handleLogout = async () => {
         <div className="relative group">
           <button
             onClick={() => setNotificationCount(Math.max(0, notificationCount - 1))}
-            className="relative text-gray-500 hover:text-blue-500 p-2 rounded-lg transition hover:bg-blue-50"
+            className="relative text-gray-900 hover:text-blue-500 p-2 rounded-lg transition hover:bg-blue-50"
           >
-            <FaBell className="text-xl group-hover:animate-pulse" />
+            <FaBell className="text-xl text-[#CBEFF1]  group-hover:animate-pulse" />
             <div className="absolute inset-0 bg-blue-400/20 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
           </button>
           {notificationCount > 0 && (
@@ -91,14 +91,7 @@ const handleLogout = async () => {
 
         {/* Logout Button */}
         <div className="relative group">
-          <button
-            onClick={() => setShowLogoutConfirm(true)}
-            className="relative text-gray-500 hover:text-red-500 p-2 rounded-lg transition hover:bg-red-50"
-            disabled={isLoggingOut}
-          >
-            <FaSignOutAlt className="text-xl" />
-            <div className="absolute inset-0 bg-red-400/20 rounded-lg scale-0 group-hover:scale-100 transition duration-300 -z-10"></div>
-          </button>
+          
           
           {/* Logout Confirmation Dialog */}
           {showLogoutConfirm && (
@@ -132,7 +125,7 @@ const handleLogout = async () => {
         
         {/* Mobile menu button */}
         <button
-          className="group relative block md:hidden text-gray-600 hover:text-blue-600 transition p-2 rounded-lg hover:bg-blue-50"
+          className="group relative block md:hidden text-[#CBEFF1]  hover:text-blue-600 transition p-2 rounded-lg hover:bg-blue-50"
           onClick={onMenuClick}   
         >
           {isSidebarOpen ? <TbLayoutSidebarLeftCollapse className="text-2xl" /> : <TbLayoutSidebarRightCollapse className="text-2xl" />}

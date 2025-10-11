@@ -76,33 +76,41 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
       className={`h-full fixed z-1000 sm:mt-0  
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
         sm:translate-x-0
-        px-4 py-4 bg-gradient-to-b from-white via-gray-50 to-white text-black font-sans md:flex flex-col overflow-hidden`}
+        px-4 py-4 bg-[#0a1045]  text-black font-sans md:flex flex-col overflow-hidden`}
     >
       {/* User Profile Summary - Only shown when sidebar is open */}
       {isSidebarOpen && (
-        <motion.div
-          className="mb-6 p-3 bg-blue-50 rounded-lg"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="flex items-center">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 overflow-hidden">
-              <img
-                src={
-                  user?.picture 
-                }
-                className="w-full h-full object-cover rounded-full"
-                alt="User avatar"
-              />
-            </div>
+       <motion.div
+  className="mb-6 p-3 rounded-lg border-2 border-blue-500 
+             bg-blue-950/40 
+             relative overflow-hidden
+             before:absolute before:inset-0 before:rounded-lg
+             before:border-2 before:border-blue-500 
+             before:blur-[8px] before:opacity-80 before:animate-pulse
+             transition-all duration-500 ease-in-out"
+  initial={{ opacity: 0, y: -10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.2 }}
+>
+  <div className="flex items-center">
+    <div className="w-8 h-8 rounded-full border-2 border-blue-400 
+                    bg-blue-900 flex items-center justify-center mr-3 overflow-hidden">
+      <img
+        src={user?.picture}
+        className="w-full h-full object-cover rounded-full"
+        alt="User avatar"
+      />
+    </div>
 
-            <div>
-              <h3 className="font-semibold text-sm">{user?.name}</h3>
-              <p className="text-xs text-gray-500">Trust Score: 87%</p>
-            </div>
-          </div>
-        </motion.div>
+    <div>
+      <h3 className="font-bbh text-sm text-blue-100">
+        {user?.name}
+      </h3>
+    </div>
+  </div>
+</motion.div>
+
+
       )}
 
       {isSidebarOpen && (
@@ -117,7 +125,7 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
       )}
 
       {/* Links */}
-      <nav className="flex-1 px-2 space-y-1">
+      <nav className="flex-1 px-2 font-bbh space-y-1">
         {navItems.map((item, index) => (
           <NavLink
             key={item.path}
@@ -128,8 +136,8 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
                 isSidebarOpen ? "justify-start pl-3" : "justify-center px-5"
               } gap-3 px-3 py-3 rounded-md transition-all duration-300 font-medium ${
                 isActive
-                  ? "bg-blue-100 text-blue-600"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-blue-600"
+                  ? "bg-[#CBEFF1] text-blue-600"
+                  : "text-[#CBEFF1] hover:bg-[#CBEFF1] hover:text-blue-600 "
               }`
             }
           >
