@@ -79,7 +79,7 @@ export default function UserApplicationLayout() {
         )}
 
         <main
-          className={`flex-grow max-w-full transition-all duration-300 ease-in-out ${
+          className={`flex-grow max-w-full transition-all duration-300 ease-in-out bg-gradient-to-br from-[#D9F3FF] via-[#EAF9FB] to-[#CBEFF1] ${
             isSidebarOpen ? "md:ml-64" : "md:ml-20"
           }  overflow-x-hidden`}
         >

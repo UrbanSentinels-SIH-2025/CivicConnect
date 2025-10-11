@@ -7,12 +7,8 @@ import {
   FaCamera, 
   FaCheck, 
   FaTimes, 
-  FaEye,
   FaTrophy,
-  FaMapMarkerAlt,
-  FaExclamationTriangle,
-  FaClock,
-  FaChartLine
+  FaExclamationTriangle
 } from 'react-icons/fa';
 
 const Dashboard = () => {
@@ -20,153 +16,156 @@ const Dashboard = () => {
     reportsSubmitted: 0,
     issuesResolved: 0,
     verifications: 0,
-    communityRank: '#0',
-    pendingReports: 0,
-    highPriority: 0
+    communityRank: '#0'
   });
 
-  // Sample data - replace with API calls
   useEffect(() => {
-    // Simulate API fetch
     setStats({
       reportsSubmitted: 42,
       issuesResolved: 31,
       verifications: 127,
-      communityRank: '#12',
-      pendingReports: 8,
-      highPriority: 3
+      communityRank: '#12'
     });
   }, []);
 
   return (
-    <div  className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+    <div className="p-6 md:p-10 min-h-screen bg-gradient-to-br from-[#D9F3FF] via-[#EAF9FB] to-[#CBEFF1] font-rozha text-gray-900">
+      
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Citizen Dashboard</h1>
-        <p className="text-gray-600">Track your civic contributions and impact</p>
-      </div>
+      <header className="mb-10">
+        <h1 className="text-4xl font-bold text-gray-900 font-iceberg tracking-tight">
+          Citizen Dashboard
+        </h1>
+        <p className="text-lg text-gray-600 mt-1">Track your civic contributions and impact</p>
+      </header>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Reports Submitted */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow p-4 flex items-center text-white">
-          <div className="rounded-full bg-white/20 p-3 mr-4">
-            <FaFlag className="text-white text-xl" />
+      {/* Top Stats Section */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        {/* Card Template */}
+        {[
+          {
+            title: "Reports Submitted",
+            icon: <FaFlag className="text-white text-2xl" />,
+            color: "from-blue-600 to-blue-700",
+            borderGlow: "hover:border-blue-400 hover:shadow-[0_0_20px_#3b82f6]",
+            value: stats.reportsSubmitted,
+            subtext: "+5 this week"
+          },
+          {
+            title: "Issues Resolved",
+            icon: <FaCheckCircle className="text-white text-2xl" />,
+            color: "from-green-600 to-green-700",
+            borderGlow: "hover:border-green-400 hover:shadow-[0_0_20px_#22c55e]",
+            value: stats.issuesResolved,
+            subtext: `${((stats.issuesResolved / stats.reportsSubmitted) * 100).toFixed(1)}% success rate`
+          },
+          {
+            title: "Verifications",
+            icon: <FaUsers className="text-white text-2xl" />,
+            color: "from-purple-600 to-purple-700",
+            borderGlow: "hover:border-purple-400 hover:shadow-[0_0_20px_#a855f7]",
+            value: stats.verifications,
+            subtext: "Community contributions"
+          },
+          {
+            title: "Community Rank",
+            icon: <FaMedal className="text-white text-2xl" />,
+            color: "from-amber-500 to-amber-600",
+            borderGlow: "hover:border-amber-300 hover:shadow-[0_0_20px_#fbbf24]",
+            value: stats.communityRank,
+            subtext: "Top contributor"
+          }
+        ].map((card, index) => (
+          <div
+            key={index}
+            className={`bg-gradient-to-br ${card.color} rounded-2xl shadow-xl p-6 flex items-center text-white 
+              transform hover:scale-105 transition-all duration-300 border border-transparent ${card.borderGlow}`}
+          >
+            <div className="rounded-full bg-white/30 p-4 mr-4 backdrop-blur-sm">
+              {card.icon}
+            </div>
+            <div>
+              <p className="text-sm opacity-90 font-medium font-iceberg">{card.title}</p>
+              <p className="text-3xl font-bold mt-1">{card.value}</p>
+              <p className="text-xs opacity-80 mt-2">{card.subtext}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm opacity-80">Reports Submitted</p>
-            <p className="text-2xl font-bold">{stats.reportsSubmitted}</p>
-            <p className="text-xs opacity-80 mt-1">+5 this week</p>
-          </div>
-        </div>
+        ))}
+      </section>
 
-        {/* Issues Resolved */}
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow p-4 flex items-center text-white">
-          <div className="rounded-full bg-white/20 p-3 mr-4">
-            <FaCheckCircle className="text-white text-xl" />
-          </div>
-          <div>
-            <p className="text-sm opacity-80">Issues Resolved</p>
-            <p className="text-2xl font-bold">{stats.issuesResolved}</p>
-            <p className="text-xs opacity-80 mt-1">
-              {((stats.issuesResolved / stats.reportsSubmitted) * 100).toFixed(1)}% success rate
-            </p>
-          </div>
-        </div>
-
-        {/* Verifications */}
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow p-4 flex items-center text-white">
-          <div className="rounded-full bg-white/20 p-3 mr-4">
-            <FaUsers className="text-white text-xl" />
-          </div>
-          <div>
-            <p className="text-sm opacity-80">Verifications</p>
-            <p className="text-2xl font-bold">{stats.verifications}</p>
-            <p className="text-xs opacity-80 mt-1">Community contributions</p>
-          </div>
-        </div>
-
-        {/* Community Rank */}
-        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow p-4 flex items-center text-white">
-          <div className="rounded-full bg-white/20 p-3 mr-4">
-            <FaMedal className="text-white text-xl" />
-          </div>
-          <div>
-            <p className="text-sm opacity-80">Community Rank</p>
-            <p className="text-2xl font-bold">{stats.communityRank}</p>
-            <p className="text-xs opacity-80 mt-1">Top contributor</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Dashboard Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - 2/3 width */}
-        <div className="lg:col-span-2">
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Left Column */}
+        <div className="lg:col-span-2 space-y-8">
           {/* Quick Actions */}
-          <div className="bg-gradient-to-r from-indigo-50 to-white rounded-xl shadow-lg p-6 mb-6">
-            <h3 className="font-semibold text-lg text-indigo-700 mb-4">Quick Actions</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Report Issue */}
-              <div className="flex flex-col items-center justify-center p-5 rounded-xl cursor-pointer 
-                bg-gradient-to-r from-blue-100 to-blue-200 border border-blue-300 
-                hover:from-blue-200 hover:to-blue-300 transition-all duration-300 hover:scale-[1.02]">
-                <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center mb-3 shadow-md">
-                  <FaCamera className="text-white text-xl" />
-                </div>
-                <span className="text-base font-medium text-blue-800">Report Issue</span>
-              </div>
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/40">
+            <h3 className="font-bold text-xl text-gray-800 mb-5 flex items-center font-iceberg">
+              <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
+              Quick Actions
+            </h3>
 
-              {/* Verify Issues */}
-              <div className="flex flex-col items-center justify-center p-5 rounded-xl cursor-pointer 
-                bg-gradient-to-r from-green-100 to-green-200 border border-green-300 
-                hover:from-green-200 hover:to-green-300 transition-all duration-300 hover:scale-[1.02]">
-                <div className="w-14 h-14 rounded-full bg-green-600 flex items-center justify-center mb-3 shadow-md">
-                  <FaCheckCircle className="text-white text-xl" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[
+                { title: "Report Issue", color: "from-blue-500 to-blue-600", icon: <FaCamera /> },
+                { title: "Verify Issues", color: "from-green-500 to-green-600", icon: <FaCheckCircle /> }
+              ].map((action, idx) => (
+                <div key={idx}
+                  className={`flex flex-col items-center justify-center p-6 rounded-xl cursor-pointer
+                    bg-gradient-to-br ${action.color} text-white hover:from-${action.color.split(' ')[0]} 
+                    hover:to-${action.color.split(' ')[1]} transition-all duration-300 
+                    hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.4)]`}
+                >
+                  <div className="w-16 h-16 rounded-full bg-white/30 flex items-center justify-center mb-3 shadow-lg backdrop-blur-sm">
+                    {action.icon}
+                  </div>
+                  <span className="text-lg font-semibold">{action.title}</span>
                 </div>
-                <span className="text-base font-medium text-green-800">Verify Issues</span>
-              </div>
+              ))}
             </div>
           </div>
 
           {/* Recent Reports */}
-          <div className="bg-gradient-to-r from-indigo-50 to-white rounded-xl shadow-lg p-6">
-            {/* Header */}
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/40">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-semibold text-lg text-indigo-700">Your Recent Reports</h3>
-              <button className="text-sm text-indigo-600 font-medium hover:underline transition">View All</button>
+              <h3 className="font-bold text-xl text-gray-800 flex items-center font-iceberg">
+                <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
+                Your Recent Reports
+              </h3>
+              <button className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition px-4 py-2 rounded-lg hover:bg-blue-50">
+                View All →
+              </button>
             </div>
 
             <div className="space-y-4">
-              {/* Report Item - In Progress */}
-              <div className="flex items-center justify-between p-4 border-l-4 border-yellow-500 bg-yellow-100/70 rounded-lg hover:shadow-md transition">
+              {/* In Progress */}
+              <div className="flex items-center justify-between p-5 border-l-4 border-amber-500 bg-gradient-to-r from-amber-50 to-white rounded-xl hover:shadow-lg transition-all duration-200 hover:translate-x-1">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center mr-3">
-                    <FaExclamationTriangle className="text-yellow-600" />
+                  <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mr-4 shadow-sm">
+                    <FaExclamationTriangle className="text-amber-600 text-xl" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-yellow-800">Pothole on Main Road</h4>
-                    <p className="text-sm text-yellow-700">Submitted 2 days ago • 1.2 km away</p>
+                    <h4 className="font-semibold text-gray-800 text-base font-iceberg">Pothole on Main Road</h4>
+                    <p className="text-sm text-gray-600 mt-1">Submitted 2 days ago • 1.2 km away</p>
                   </div>
                 </div>
-                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-800 text-xs rounded-full font-medium">
+                <span className="px-4 py-2 bg-amber-100 text-amber-700 text-sm rounded-full font-semibold shadow-sm font-iceberg">
                   In Progress
                 </span>
               </div>
 
-              {/* Report Item - Resolved */}
-              <div className="flex items-center justify-between p-4 border-l-4 border-green-500 bg-green-100/70 rounded-lg hover:shadow-md transition">
+              {/* Resolved */}
+              <div className="flex items-center justify-between p-5 border-l-4 border-green-500 bg-gradient-to-r from-green-50 to-white rounded-xl hover:shadow-lg transition-all duration-200 hover:translate-x-1">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center mr-3">
-                    <FaCheckCircle className="text-green-600" />
+                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mr-4 shadow-sm">
+                    <FaCheckCircle className="text-green-600 text-xl" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-green-800">Garbage Pileup in Sector 5</h4>
-                    <p className="text-sm text-green-700">Submitted 5 days ago • 0.8 km away</p>
+                    <h4 className="font-semibold text-gray-800 text-base font-iceberg">Garbage Pileup in Sector 5</h4>
+                    <p className="text-sm text-gray-600 mt-1">Submitted 5 days ago • 0.8 km away</p>
                   </div>
                 </div>
-                <span className="px-3 py-1 bg-green-500/20 text-green-800 text-xs rounded-full font-medium">
+                <span className="px-4 py-2 bg-green-100 text-green-700 text-sm rounded-full font-semibold shadow-sm font-iceberg">
                   Resolved
                 </span>
               </div>
@@ -174,89 +173,70 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Right Column - 1/3 width */}
-        <div className="space-y-6">
+        {/* Right Column */}
+        <div className="space-y-8">
           {/* Verification Requests */}
-          <div className="bg-gradient-to-r from-white to-blue-50 rounded-xl shadow-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg text-blue-700">Verification Requests</h3>
-              <button className="text-sm text-blue-600 font-medium hover:underline transition">View All</button>
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/40">
+            <div className="flex justify-between items-center mb-5">
+              <h3 className="font-bold text-xl text-gray-800 flex items-center font-iceberg">
+                <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
+                Verification Requests
+              </h3>
+              <button className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition px-3 py-1 rounded-lg hover:bg-blue-50">
+                View All →
+              </button>
             </div>
 
-            <div className="space-y-4">
-              {/* Request Item */}
-              <div className="p-3 bg-blue-100/50 rounded-lg border border-blue-200 hover:bg-blue-200/50 transition">
+            {[ 
+              { title: "Streetlight outage", verifications: 3 },
+              { title: "Park maintenance needed", verifications: 5 }
+            ].map((req, idx) => (
+              <div key={idx} className="p-4 bg-gradient-to-r from-blue-50 to-white rounded-xl border border-blue-100 hover:shadow-md transition-all duration-200 mb-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold text-sm text-blue-800">Streetlight outage</h4>
-                    <p className="text-xs text-blue-700 mt-1">0.8 km from you • 3 verifications</p>
+                    <h4 className="font-semibold text-sm text-gray-800 font-iceberg">{req.title}</h4>
+                    <p className="text-xs text-gray-600 mt-1.5">1.2 km from you • {req.verifications} verifications</p>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center hover:bg-green-500/30 transition">
-                      <FaCheck className="text-green-600 text-sm" />
+                    <button className="w-9 h-9 rounded-lg bg-green-500 flex items-center justify-center hover:bg-green-600 transition-all duration-200 shadow-sm hover:shadow-md">
+                      <FaCheck className="text-white text-sm" />
                     </button>
-                    <button className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center hover:bg-red-500/30 transition">
-                      <FaTimes className="text-red-600 text-sm" />
+                    <button className="w-9 h-9 rounded-lg bg-red-500 flex items-center justify-center hover:bg-red-600 transition-all duration-200 shadow-sm hover:shadow-md">
+                      <FaTimes className="text-white text-sm" />
                     </button>
                   </div>
                 </div>
               </div>
-
-              {/* Request Item */}
-              <div className="p-3 bg-blue-100/50 rounded-lg border border-blue-200 hover:bg-blue-200/50 transition">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-semibold text-sm text-blue-800">Park maintenance needed</h4>
-                    <p className="text-xs text-blue-700 mt-1">1.2 km from you • 5 verifications</p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center hover:bg-green-500/30 transition">
-                      <FaCheck className="text-green-600 text-sm" />
-                    </button>
-                    <button className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center hover:bg-red-500/30 transition">
-                      <FaTimes className="text-red-600 text-sm" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Recent Badges */}
-          <div className="bg-gradient-to-r from-white to-yellow-50 rounded-xl shadow-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg text-yellow-700">Recent Badges</h3>
-              <button className="text-sm text-yellow-600 font-medium hover:underline transition">View All</button>
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/40">
+            <div className="flex justify-between items-center mb-5">
+              <h3 className="font-bold text-xl text-gray-800 flex items-center font-iceberg">
+                <span className="w-1.5 h-6 bg-amber-500 rounded-full mr-3"></span>
+                Recent Badges
+              </h3>
+              <button className="text-sm text-amber-600 font-semibold hover:text-amber-700 transition px-3 py-1 rounded-lg hover:bg-amber-50">
+                View All →
+              </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              {/* Verifier */}
-              <div className="flex flex-col items-center p-3 rounded-xl bg-gradient-to-b from-blue-100 to-blue-200 border border-blue-300 shadow-sm hover:shadow-md transition">
-                <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center mb-2 shadow-md">
-                  <FaCheckCircle className="text-white text-lg" />
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { name: "Verifier", color: "from-blue-500 to-blue-600", icon: <FaCheckCircle /> },
+                { name: "First Report", color: "from-amber-500 to-amber-600", icon: <FaMedal /> },
+                { name: "Champion", color: "from-green-500 to-green-600", icon: <FaTrophy /> }
+              ].map((badge, idx) => (
+                <div key={idx} className={`flex flex-col items-center p-4 rounded-xl bg-gradient-to-br ${badge.color} shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200`}>
+                  <div className="w-14 h-14 rounded-full bg-white/30 flex items-center justify-center mb-2 shadow-md backdrop-blur-sm">
+                    {badge.icon}
+                  </div>
+                  <p className="text-xs font-semibold text-white text-center font-iceberg">{badge.name}</p>
                 </div>
-                <p className="text-xs font-medium text-blue-800">Verifier</p>
-              </div>
-
-              {/* First Report */}
-              <div className="flex flex-col items-center p-3 rounded-xl bg-gradient-to-b from-yellow-100 to-yellow-200 border border-yellow-300 shadow-sm hover:shadow-md transition">
-                <div className="w-12 h-12 rounded-full bg-yellow-600 flex items-center justify-center mb-2 shadow-md">
-                  <FaMedal className="text-white text-lg" />
-                </div>
-                <p className="text-xs font-medium text-yellow-800">First Report</p>
-              </div>
-
-              {/* Champion */}
-              <div className="flex flex-col items-center p-3 rounded-xl bg-gradient-to-b from-green-100 to-green-200 border border-green-300 shadow-sm hover:shadow-md transition">
-                <div className="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center mb-2 shadow-md">
-                  <FaTrophy className="text-white text-lg" />
-                </div>
-                <p className="text-xs font-medium text-green-800">Champion</p>
-              </div>
+              ))}
             </div>
           </div>
-
-        
         </div>
       </div>
     </div>

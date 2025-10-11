@@ -30,8 +30,8 @@ const Header = () => {
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-black backdrop-blur-xl shadow-lg py-3 border-b border-black"
-          : "bg-black py-3"
+          ? "bg-[#03091f] backdrop-blur-xl shadow-lg py-3 border-b border-black"
+          : "bg-[#03091f] py-3"
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -60,6 +60,7 @@ const Header = () => {
           </motion.div>
           <span className=" text-2xl bg-gradient-to-r font-bbh from-blue-500 to-indigo-400 bg-clip-text text-transparent">
             CivicConnect
+
           </span>
         </motion.div>
 
