@@ -40,7 +40,7 @@ const handleLogout = async () => {
 
 
   return (
-    <header className="w-full fixed h-16 z-1000 bg-[#0a1045] border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm py-9">
+    <header className="w-full fixed h-16 z-1000 bg-[#03091f]  flex items-center justify-between px-4 sm:px-6 shadow-sm py-9">
       
       {/* Left side: Logo & Menu */}
       <div className="flex items-center gap-4">
