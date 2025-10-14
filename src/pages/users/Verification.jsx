@@ -32,7 +32,7 @@ const Verification = () => {
   // Get user from auth store
   const { user } = useAuthStore();
   if(user){
-    console.log(user._id)
+    console.log(user._id);
   }
 
   // Update apiData when TanStack Query data changes
@@ -42,32 +42,32 @@ const Verification = () => {
     }
   }, [status, data]);
 
-  const handleVerify = async (id, type) => {
+  const handleVerify = async (id, verifyType) => {
     setLoadingIssues(prev => ({ ...prev, [id]: true }));
     
     try {
-      const { data } = await api.post(
+      const response = await api.post(
         "/user-issue/verify-issues",
         {
           id,
-          type,
+          type: verifyType,
           userId: user?._id,
         },
         { withCredentials: true }
       );
-      console.log("Verification response:", data);
+      console.log("Verification response:", response.data);
       
       // Update the issues list with the new verification data
       const updatedIssues = apiData.issues.map(issue => {
         if (issue._id === id) {
           const updatedVerifications = { ...issue.verifications };
-          if (type === "real") {
+          if (verifyType === "real") {
             updatedVerifications.real = [...(updatedVerifications.real || []), user._id];
             // Remove from fake if user was there
             if (updatedVerifications.fake) {
               updatedVerifications.fake = updatedVerifications.fake.filter(userId => userId !== user._id);
             }
-          } else if (type === "fake") {
+          } else if (verifyType === "fake") {
             updatedVerifications.fake = [...(updatedVerifications.fake || []), user._id];
             // Remove from real if user was there
             if (updatedVerifications.real) {
@@ -106,16 +106,16 @@ const Verification = () => {
     
     if (searchTerm) {
       result = result.filter(issue => 
-        issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        issue.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (issue.category && issue.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (issue.createdBy && issue.createdBy.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        (issue.createdBy?.name && issue.createdBy.name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
     if (statusFilter !== "All") {
       result = result.filter(issue => {
-        const status = getStatusFromProgress(issue);
-        return status === statusFilter;
+        const issueStatus = getStatusFromProgress(issue);
+        return issueStatus === statusFilter;
       });
     }
     
@@ -437,7 +437,7 @@ const Verification = () => {
                     {/* Verification Buttons */}
                     <div className="flex gap-3 mt-4">
                       <button
-                        onClick={() => handleVerify(issue._id,"real")}
+                        onClick={() => handleVerify(issue._id, "real")}
                         disabled={isLoading || userVerified || userMarkedFake}
                         className={`flex items-center justify-center gap-2 ${userVerified ? 'bg-green-800' : 'bg-green-600 hover:bg-green-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 min-w-[140px] font-iceberg`}
                       >
@@ -451,7 +451,7 @@ const Verification = () => {
                         )}
                       </button>
                       <button
-                        onClick={() => handleVerify(issue._id,"fake")}
+                        onClick={() => handleVerify(issue._id, "fake")}
                         disabled={isLoading || userMarkedFake || userVerified}
                         className={`flex items-center justify-center gap-2 ${userMarkedFake ? 'bg-red-800' : 'bg-red-600 hover:bg-red-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 min-w-[140px] font-iceberg`}
                       >
