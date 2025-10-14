@@ -28,11 +28,11 @@ const Dashboard = () => {
   return (
     <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br from-[#D9F3FF] via-[#EAF9FB] to-[#CBEFF1] font-rozha text-gray-900">
       {/* Header */}
-      <header className="mb-10">
+      <header className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 font-iceberg tracking-tight">
           Citizen Dashboard
         </h1>
-        <p className="text-lg text-gray-600 ">
+        <p className=" text-gray-600 ">
           Track your civic contributions and impact
         </p>
       </header>

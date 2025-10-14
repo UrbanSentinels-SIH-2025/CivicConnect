@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheckCircle, FaTimesCircle, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaFilter, FaSort, FaSearch, FaPlay, FaCheck, FaExclamationTriangle, FaClock, FaThumbsUp, FaBan, FaFlag, FaExclamation, FaSpinner } from 'react-icons/fa';
+import { 
+  FaCheckCircle, FaTimesCircle, FaEye, FaMapMarkerAlt, FaCalendarAlt, 
+  FaFilter, FaSort, FaSearch, FaPlay, FaCheck, FaExclamationTriangle, 
+  FaClock, FaThumbsUp, FaBan, FaFlag, FaExclamation, FaSpinner, FaUsers,
+  FaVideo, FaMedal
+} from 'react-icons/fa';
 import api from '../../api/axios';
 import useAuthStore from '../../store/useAuthStore';
 import { useOtherReports } from '../../hooks/tanstack/useOtherReports';
 
 const Verification = () => {
+  
   const [apiData, setApiData] = useState({
     totalIssues: 0,
     totalVerified: 0,
@@ -13,6 +19,7 @@ const Verification = () => {
   });
   
   const { data, status, refetch } = useOtherReports();
+  
   const [filteredReports, setFilteredReports] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -24,6 +31,9 @@ const Verification = () => {
 
   // Get user from auth store
   const { user } = useAuthStore();
+  if(user){
+    console.log(user._id)
+  }
 
   // Update apiData when TanStack Query data changes
   useEffect(() => {
@@ -129,16 +139,19 @@ const Verification = () => {
     setFilteredReports(result);
   }, [searchTerm, statusFilter, categoryFilter, sortBy, sortOrder, apiData.issues]);
 
-  // Determine status based on user verification
+  // Determine status based on user verification - UPDATED
   const getStatusFromProgress = (issue) => {
     const real = issue.verifications?.real || [];
     const fake = issue.verifications?.fake || [];
-    const hasVerified = user?._id && (real.includes(user._id) || fake.includes(user._id));
     
-    if(!hasVerified){
-      return "Pending";
+    if (!user?._id) return "Pending";
+    
+    if (real.includes(user._id)) {
+      return "Marked as Real";
+    } else if (fake.includes(user._id)) {
+      return "Marked as Fake";
     } else {
-      return "Verified";
+      return "Pending";
     }
   };
 
@@ -148,12 +161,14 @@ const Verification = () => {
     status: getStatusFromProgress(issue),
   }));
 
+  // UPDATED status colors for more specific statuses
   const statusColors = {
     "Pending": "bg-blue-100 text-blue-800",
-    "Verified": "bg-purple-100 text-purple-800",
+    "Marked as Real": "bg-green-100 text-green-800",
+    "Marked as Fake": "bg-red-100 text-red-800",
   };
 
-  // Check if user has verified this issue
+  // Check if user has verified this issue as real
   const hasUserVerified = (issue) => {
     if (!user || !issue.verifications) return false;
     return issue.verifications.real && issue.verifications.real.includes(user._id);
@@ -220,10 +235,10 @@ const Verification = () => {
   // Show loading state while data is fetching
   if (status === "loading") {
     return (
-      <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center">
+      <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center font-rozha">
         <div className="text-center">
           <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading issues...</p>
+          <p className="text-gray-600 font-iceberg">Loading issues...</p>
         </div>
       </div>
     );
@@ -232,13 +247,13 @@ const Verification = () => {
   // Show error state if fetch failed
   if (status === "error") {
     return (
-      <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center">
+      <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center font-rozha">
         <div className="text-center">
           <FaExclamationTriangle className="text-4xl text-red-600 mx-auto mb-4" />
-          <p className="text-gray-600">Failed to load issues. Please try again.</p>
+          <p className="text-gray-600 font-iceberg">Failed to load issues. Please try again.</p>
           <button 
             onClick={refetch}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-iceberg"
           >
             Retry
           </button>
@@ -248,55 +263,53 @@ const Verification = () => {
   }
 
   return (
-    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br from-[#D9F3FF] via-[#EAF9FB] to-[#CBEFF1] font-rozha text-gray-900">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Community Issues Verification</h1>
+        <h1 className="text-2xl font-bold text-gray-800 font-iceberg tracking-tight">Community Issues Verification</h1>
         <p className="text-gray-600">Verify or report issues submitted by other community members</p>
       </div>
 
       {/* Stats Overview - Using API data directly */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Total Issues */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow p-4 flex items-center text-white">
-          <div className="rounded-full bg-white/20 p-3 mr-4">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-4 flex items-center text-white transform hover:scale-105 transition-all duration-300 border border-transparent hover:border-blue-400 hover:shadow-[0_0_20px_#3b82f6]">
+          <div className="rounded-full bg-white/20 p-3 mr-4 backdrop-blur-sm">
             <FaFlag className="text-white text-xl" />
           </div>
           <div>
-            <p className="text-sm opacity-80">Total Issues</p>
+            <p className="text-sm opacity-80 font-iceberg">Total Issues</p>
             <p className="text-2xl font-bold">{stats.total}</p>
-            <p className="text-xs opacity-80 mt-1">Needing attention</p>
           </div>
         </div>
         
         {/* Pending Verification */}
-        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow p-4 flex items-center text-white">
-          <div className="rounded-full bg-white/20 p-3 mr-4">
+        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-4 flex items-center text-white transform hover:scale-105 transition-all duration-300 border border-transparent hover:border-yellow-400 hover:shadow-[0_0_20px_#eab308]">
+          <div className="rounded-full bg-white/20 p-3 mr-4 backdrop-blur-sm">
             <FaExclamationTriangle className="text-white text-xl" />
           </div>
           <div>
-            <p className="text-sm opacity-80">Pending Verification</p>
+            <p className="text-sm opacity-80 font-iceberg">Pending Verification</p>
             <p className="text-2xl font-bold">{stats.pending}</p>
             <p className="text-xs opacity-80 mt-1">Awaiting your review</p>
           </div>
         </div>
         
         {/* Verified Issues */}
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow p-4 flex items-center text-white">
-          <div className="rounded-full bg-white/20 p-3 mr-4">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-4 flex items-center text-white transform hover:scale-105 transition-all duration-300 border border-transparent hover:border-green-400 hover:shadow-[0_0_20px_#22c55e]">
+          <div className="rounded-full bg-white/20 p-3 mr-4 backdrop-blur-sm">
             <FaCheckCircle className="text-white text-xl" />
           </div>
           <div>
-            <p className="text-sm opacity-80">Verified Issues</p>
+            <p className="text-sm opacity-80 font-iceberg">Verified Issues</p>
             <p className="text-2xl font-bold">{stats.verified}</p>
             <p className="text-xs opacity-80 mt-1">Confirmed by you</p>
           </div>
         </div>
       </div>
 
-      {/* Rest of your component remains the same... */}
       {/* Filters and Search */}
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 mb-8 border border-white/40">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -305,7 +318,7 @@ const Verification = () => {
             <input
               type="text"
               placeholder="Search issues..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 font-rozha"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -313,17 +326,18 @@ const Verification = () => {
           
           <div className="flex flex-wrap gap-2">
             <select 
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-rozha"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="All">All Status</option>
               <option value="Pending">Pending</option>
-              <option value="Verified">Verified</option>
+              <option value="Marked as Real">Marked as Real</option>
+              <option value="Marked as Fake">Marked as Fake</option>
             </select>
             
             <select 
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-rozha"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
@@ -334,7 +348,7 @@ const Verification = () => {
             </select>
             
             <select 
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-rozha"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -343,7 +357,7 @@ const Verification = () => {
             </select>
             
             <button 
-              className="border border-gray-300 rounded-lg px-3 py-2 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm hover:bg-gray-50 transition"
+              className="border border-gray-300 rounded-lg px-3 py-2 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm hover:bg-gray-50 transition font-rozha"
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             >
               <FaSort className="mr-1" />
@@ -356,7 +370,7 @@ const Verification = () => {
       {/* Reports List */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2 className="text-lg font-semibold text-gray-800 font-iceberg">
             {reportsWithStatus.length} Issue{reportsWithStatus.length !== 1 ? 's' : ''} Found
             {statusFilter !== "All" && ` (${statusFilter})`}
             {categoryFilter !== "All" && ` in ${categoryFilter}`}
@@ -374,7 +388,7 @@ const Verification = () => {
             return (
               <div 
                 key={issue._id} 
-                className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-blue-500 hover:shadow-xl transition-all"
+                className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-4 border-l-4 border-blue-500 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:translate-x-1"
               >
                 <div className="flex flex-col md:flex-row gap-4">
                   {/* Video Thumbnail/Player */}
@@ -388,12 +402,12 @@ const Verification = () => {
                   
                   {/* Issue Details */}
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-800">{issue.title}</h4>
+                    <h4 className="font-medium text-gray-800 font-iceberg text-lg">{issue.title}</h4>
                     <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <span className={`px-2 py-1 rounded-full text-xs ${statusColors[issue.status]}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs ${statusColors[issue.status]} font-iceberg`}>
                         {issue.status}
                       </span>
-                      <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
+                      <span className="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-800 font-iceberg">
                         {issue.category}
                       </span>
                     </div>
@@ -416,7 +430,7 @@ const Verification = () => {
                       </div>
                     </div>
 
-                    <div className="text-xs text-gray-600 mb-3">
+                    <div className="text-xs text-gray-600 mb-3 font-iceberg">
                       Reported by: <span className="font-medium">{issue.createdBy?.name || 'Unknown'}</span>
                     </div>
 
@@ -425,28 +439,28 @@ const Verification = () => {
                       <button
                         onClick={() => handleVerify(issue._id,"real")}
                         disabled={isLoading || userVerified || userMarkedFake}
-                        className={`flex items-center justify-center gap-2 ${userVerified ? 'bg-green-800' : 'bg-green-600 hover:bg-green-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 min-w-[140px]`}
+                        className={`flex items-center justify-center gap-2 ${userVerified ? 'bg-green-800' : 'bg-green-600 hover:bg-green-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 min-w-[140px] font-iceberg`}
                       >
                         {isLoading ? (
                           <LoadingSpinner />
                         ) : (
                           <>
                             <FaThumbsUp />
-                            {userVerified ? 'Already Verified' : 'Verify Issue'}
+                            {userVerified ? 'Marked as Real' : 'Verify Issue'}
                           </>
                         )}
                       </button>
                       <button
                         onClick={() => handleVerify(issue._id,"fake")}
                         disabled={isLoading || userMarkedFake || userVerified}
-                        className={`flex items-center justify-center gap-2 ${userMarkedFake ? 'bg-red-800' : 'bg-red-600 hover:bg-red-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 min-w-[140px]`}
+                        className={`flex items-center justify-center gap-2 ${userMarkedFake ? 'bg-red-800' : 'bg-red-600 hover:bg-red-700'} text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 min-w-[140px] font-iceberg`}
                       >
                         {isLoading ? (
                           <LoadingSpinner />
                         ) : (
                           <>
                             <FaBan />
-                            {userMarkedFake ? 'Reported as Fake' : 'Mark as Fake'}
+                            {userMarkedFake ? 'Marked as Fake' : 'Mark as Fake'}
                           </>
                         )}
                       </button>
@@ -459,9 +473,9 @@ const Verification = () => {
         </div>
 
         {reportsWithStatus.length === 0 && (
-          <div className="text-center py-10 bg-white rounded-xl shadow-lg">
+          <div className="text-center py-10 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/40">
             <FaFilter className="text-4xl text-gray-300 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-gray-500">No issues found</h3>
+            <h3 className="text-lg font-medium text-gray-500 font-iceberg">No issues found</h3>
             <p className="text-gray-400">Try adjusting your filters or search term</p>
           </div>
         )}
