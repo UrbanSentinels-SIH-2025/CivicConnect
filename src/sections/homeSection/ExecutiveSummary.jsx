@@ -75,9 +75,9 @@ const ExecutiveSummary = () => {
               <div className="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center mr-4 shadow-sm">
                 <Search className="text-red-600 text-2xl" />
               </div>
-              <h3 className="text-2xl font-bold text-white">The Civic Engagement Gap</h3>
+              <h3 className="text-2xl font-bbh text-white ">The Civic Engagement Gap</h3>
             </div>
-            <p className="text-white/90 text-lg font-semibold mb-8 leading-relaxed font-agu">
+            <p className="text-white/90 text-lg font-medium mb-8 leading-relaxed font-agu">
               Traditional civic issue reporting suffers from systemic inefficiencies that hinder community development:
             </p>
             <div className="grid md:grid-cols-2 gap-4">
@@ -100,7 +100,7 @@ const ExecutiveSummary = () => {
                   <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-3 mt-1">
                     <div className="w-2.5 h-2.5 bg-black rounded-full" />
                   </div>
-                  <span className="text-white/90 font-agu">{item}</span>
+                  <span className="text-white/90 font-garamond">{item}</span>
                 </motion.div>
               ))}
             </div>

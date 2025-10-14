@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import api from "../api/axios";
+import api from "../../api/axios";
 
 const ReportIssue = () => {
   const [recording, setRecording] = useState(false);
@@ -488,7 +488,7 @@ const ReportIssue = () => {
             <label className="block text-gray-700 font-medium mb-3 text-lg font-iceberg">
               Issue Category
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid font-rubik grid-cols-2 md:grid-cols-3 gap-3">
              {["Road", "Water", "Electricity", "Sanitation"].map((opt) => (
   <button
     key={opt}

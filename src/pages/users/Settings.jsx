@@ -3,7 +3,6 @@ import {
   FaUser, 
   FaEnvelope, 
   FaMapMarkerAlt, 
-  FaBell, 
   FaSignOutAlt,
   FaSave,
   FaEdit,
@@ -11,13 +10,13 @@ import {
   FaGlobe
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import useAuthStore from "../store/useAuthStore";
-import api from "../api/axios";
+import useAuthStore from "../../store/useAuthStore";
+import api from "../../api/axios";
 
 const Settings = () => {
   const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout); // Get logout function from store
-  const navigate = useNavigate(); // Initialize navigate
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
   
   const [coords, setCoords] = useState({
     latitude: 0,
@@ -33,40 +32,27 @@ const Settings = () => {
     name: "",
     email: "",
     language: "English",
-    notifications: {
-      issuesNearby: true,
-      reportUpdates: true,
-      emailAlerts: false,
-      pushNotifications: true,
-    }
   });
 
- const [loggingOut, setLoggingOut] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-const handleLogout = async () => {
-  setLoggingOut(true);
-  
-  try {
-    // Call the backend logout endpoint via axios instance
-    const response = await api.get("/auth/logout", {
-      withCredentials: true, // ensures cookies are sent
-    });
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    
+    try {
+      const response = await api.get("/auth/logout", {
+        withCredentials: true,
+      });
 
-    console.log(response.data?.message || "Logged out successfully");
-
-
-    // Redirect to login page
-    navigate("/");
-  }catch (error) {
-    console.error("Logout error:", error.response?.data || error.message);
-
-    navigate("/");
-  }  finally {
-    setLoggingOut(false);
-  }
-};
-
-
+      console.log(response.data?.message || "Logged out successfully");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error.response?.data || error.message);
+      navigate("/");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   // Initialize user data and coordinates when user is available
   useEffect(() => {
@@ -83,7 +69,6 @@ const handleLogout = async () => {
           longitude: user.location.lng
         });
       } else {
-        // If user doesn't have location, try to get it from browser
         getCurrentLocation();
       }
     }
@@ -165,16 +150,6 @@ const handleLogout = async () => {
     }));
   };
 
-  const handleNotificationChange = (type) => {
-    setUserData(prev => ({
-      ...prev,
-      notifications: {
-        ...prev.notifications,
-        [type]: !prev.notifications[type]
-      }
-    }));
-  };
-
   const TabButton = ({ id, icon: Icon, label }) => (
     <button
       onClick={() => setActiveTab(id)}
@@ -207,7 +182,7 @@ const handleLogout = async () => {
 
       <div className="max-w-4xl mx-auto">
         {/* Tab Navigation */}
-        <div className="grid grid-cols-3 gap-2 md:gap-3 mb-6 md:mb-8">
+        <div className="grid grid-cols-2 gap-2 md:gap-3 mb-6 md:mb-8">
           <TabButton
             id="profile"
             icon={FaUser}
@@ -217,11 +192,6 @@ const handleLogout = async () => {
             id="location"
             icon={FaMapMarkerAlt}
             label="Location"
-          />
-          <TabButton
-            id="notifications"
-            icon={FaBell}
-            label="Notifications"
           />
         </div>
 
@@ -269,7 +239,7 @@ const handleLogout = async () => {
               </div>
 
               <div>
-                <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <FaEnvelope className="mr-2 text-purple-500" /> Email
                 </label>
                 {editMode ? (
@@ -348,45 +318,42 @@ const handleLogout = async () => {
                 className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 disabled:opacity-50 transition-all text-sm md:text-base flex items-center justify-center"
               >
                 <FaCrosshairs className="mr-2" />
-                get Current Location
+                Get Current Location
               </button>
               
-             <button
-  onClick={async () => {
-    try {
-      setLoading(true);
-      const payload = {
-        lat: coords.latitude,
-        lng: coords.longitude,
-      };
+              <button
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    const payload = {
+                      lat: coords.latitude,
+                      lng: coords.longitude,
+                    };
 
-      // Call backend to update user location
-      const response = await api.patch("/user-issue/update-location", payload, {
-        withCredentials: true,
-      });
+                    const response = await api.patch("/user-issue/update-location", payload, {
+                      withCredentials: true,
+                    });
 
-      console.log("Location updated:", response.data);
+                    console.log("Location updated:", response.data);
 
-      // ✅ Re-fetch user data into Zustand store
-      const { data: refreshedUser } = await api.get("/auth/me", {
-        withCredentials: true,
-      });
-      useAuthStore.getState().setUser(refreshedUser.user);
+                    const { data: refreshedUser } = await api.get("/auth/me", {
+                      withCredentials: true,
+                    });
+                    useAuthStore.getState().setUser(refreshedUser.user);
 
-      setError("");
-    } catch (err) {
-      console.error("Update location error:", err.response?.data || err.message);
-      setError("Failed to update location");
-    } finally {
-      setLoading(false);
-    }
-  }}
-  disabled={loading}
-  className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 rounded-lg hover:from-gray-300 hover:to-gray-400 disabled:opacity-50 transition-all text-sm md:text-base"
->
-  Update Location
-</button>
-
+                    setError("");
+                  } catch (err) {
+                    console.error("Update location error:", err.response?.data || err.message);
+                    setError("Failed to update location");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 rounded-lg hover:from-gray-300 hover:to-gray-400 disabled:opacity-50 transition-all text-sm md:text-base"
+              >
+                Update Location
+              </button>
             </div>
 
             <p className="text-xs md:text-sm text-gray-500 bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -396,74 +363,26 @@ const handleLogout = async () => {
           </SettingCard>
         )}
 
-        {/* Notifications Tab */}
-        {activeTab === "notifications" && (
-          <SettingCard>
-            <h2 className="text-lg md:text-xl font-semibold mb-6 flex items-center text-gray-800">
-              <FaBell className="mr-2 text-yellow-500" />
-              Notification Preferences
-            </h2>
-
-            <div className="space-y-3 md:space-y-4">
-              {[
-                { key: 'issuesNearby', label: 'Issues near my location', desc: 'Get notified about new issues in your area', color: 'blue' },
-                { key: 'reportUpdates', label: 'Updates on my reports', desc: 'Notifications about your submitted reports', color: 'purple' },
-                { key: 'emailAlerts', label: 'Email alerts', desc: 'Receive important updates via email', color: 'green' },
-                { key: 'pushNotifications', label: 'Push notifications', desc: 'Receive instant alerts on your device', color: 'orange' }
-              ].map((item) => (
-                <label key={item.key} className="flex items-center justify-between p-3 md:p-4 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer border border-gray-200">
-                  <div className="flex-1 mr-4">
-                    <p className="font-medium text-gray-800 text-sm md:text-base">{item.label}</p>
-                    <p className="text-xs md:text-sm text-gray-500">{item.desc}</p>
-                  </div>
-                  <div className="relative inline-block w-12 h-6 align-middle select-none flex-shrink-0">
-                    <input 
-                      type="checkbox" 
-                      checked={userData.notifications[item.key]}
-                      onChange={() => handleNotificationChange(item.key)}
-                      className="sr-only"
-                      id={item.key}
-                    />
-                    <label 
-                      htmlFor={item.key} 
-                      className={`block h-6 w-12 rounded-full transition-colors ${
-                        userData.notifications[item.key] 
-                          ? `bg-${item.color}-500` 
-                          : 'bg-gray-300'
-                      }`}
-                    >
-                      <span className={`absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform shadow-md ${
-                        userData.notifications[item.key] ? 'transform translate-x-6' : ''
-                      }`}></span>
-                    </label>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </SettingCard>
-        )}
-
         {/* Logout Button */}
-       <div className="mt-6 md:mt-8">
-  <button
-    onClick={handleLogout}
-    disabled={loggingOut}
-    className="w-full px-4 py-3 md:px-6 md:py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl flex items-center justify-center transition-all shadow-md hover:shadow-lg disabled:opacity-50 text-sm md:text-base"
-  >
-    {loggingOut ? (
-      <div className="flex items-center">
-        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-        Logging out...
-      </div>
-    ) : (
-      <>
-        <FaSignOutAlt className="mr-2 md:mr-3" />
-        Logout
-      </>
-    )}
-  </button>
-</div>
-
+        <div className="mt-6 md:mt-8">
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="w-full px-4 py-3 md:px-6 md:py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl flex items-center justify-center transition-all shadow-md hover:shadow-lg disabled:opacity-50 text-sm md:text-base"
+          >
+            {loggingOut ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                Logging out...
+              </div>
+            ) : (
+              <>
+                <FaSignOutAlt className="mr-2 md:mr-3" />
+                Logout
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

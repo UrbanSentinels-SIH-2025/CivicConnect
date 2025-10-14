@@ -101,7 +101,7 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
             to={item.path}
             onClick={(e) => handleLinkClick(e, item.path)}
             className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-md transition-all duration-300 relative
+              `group flex items-center gap-3 rounded-md transition-all my-2 duration-300 relative
               ${isSidebarOpen ? "pl-3 pr-2 py-3" : "justify-center py-3"} 
               ${
                 isActive

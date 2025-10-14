@@ -46,9 +46,9 @@ const HeroSection = memo(() => {
         <div className="flex flex-col items-center gap-10 text-center">
           <motion.div
             {...fadeInUp}
-            className=" inline-flex items-center px-5 py-2 rounded-full bg-white/70 backdrop-blur-md text-blue-700 font-medium shadow-md border border-blue-100"
+            className=" inline-flex items-center font-iceberg px-5 py-2 rounded-full bg-white/70 backdrop-blur-md text-blue-700 font-medium shadow-md border border-blue-100"
           >
-            <RiGovernmentLine className="mr-2 font-agu" /> Community-Driven Civic Solutions
+            <RiGovernmentLine className="mr-2 " /> Community-Driven Civic Solutions
           </motion.div>
 
           <motion.h1
@@ -81,16 +81,16 @@ const HeroSection = memo(() => {
           >
             <NavLink
               to="/login"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+              className="bg-gradient-to-r font-rozha from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
             >
               <RiDashboardLine className="mr-2" /> Login
             </NavLink>
 
             <motion.a
               href="#code"
-              className="bg-white/90 backdrop-blur-md text-gray-900 px-6 py-3 rounded-full font-semibold text-base border border-gray-200 shadow-md hover:shadow-lg transition-all flex items-center justify-center"
+              className="bg-white/90 backdrop-blur-md text-gray-900 font-rozha px-6 py-3 rounded-full font-semibold text-base border border-gray-200 shadow-md hover:shadow-lg transition-all flex items-center justify-center"
             >
-              <RiLightbulbFill className="mr-2 text-blue-500" /> Let's Make our City Smart
+              <RiLightbulbFill className="mr-2 text-blue-500 " /> Let's Make our City Smart
             </motion.a>
           </motion.div>
 
