@@ -285,7 +285,7 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2 font-iceberg">Current Coordinates</label>
-                <p className="font-mono text-xs md:text-sm bg-gradient-to-r from-blue-50 to-green-50 p-3 md:p-4 rounded-lg border border-blue-100 font-rozha">
+                <p className=" text-xs md:text-sm bg-gradient-to-r from-blue-50 to-green-50 p-3 md:p-4 rounded-lg border border-blue-100 font-rozha">
                   {coords.latitude.toFixed(6)}, {coords.longitude.toFixed(6)}
                 </p>
               </div>
