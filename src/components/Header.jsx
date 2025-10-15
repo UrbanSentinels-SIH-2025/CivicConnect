@@ -118,7 +118,8 @@ const Header = () => {
           </nav>
         )}
 
-        {/* Mobile Menu Button */}
+        {isHome&&
+        <>{/* Mobile Menu Button */}
         <motion.button
           className="md:hidden p-3 rounded-xl text-blue-800 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-300"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -129,7 +130,7 @@ const Header = () => {
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? <RiCloseLine size={24} /> : <RiMenuLine size={24} />}
-        </motion.button>
+        </motion.button></>}
       </div>
 
       {/* Mobile Navigation - only show on "/" */}

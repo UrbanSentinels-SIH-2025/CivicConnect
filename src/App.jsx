@@ -27,6 +27,7 @@ import IssueDetail from "./pages/Departements/IssueDetail";
 import VideoTranscriber from "./components/DepartmentDashboard.jsx/VideoTranscriber";
 import TaskComplete from "./pages/Departements/TaskComplete";
 import Resolved from "./pages/Departements/Resolved";
+import AdminLogin from "./components/Admin/AdminLogin";
 const App = () => {
   return (
     <Router>
@@ -68,11 +69,13 @@ const App = () => {
           <Route path="settings" element={<Settings />} />
           <Route path="rewards" element={<Rewards />} />
         </Route>
-
-        <Route path="/admin" element={<AdminLayout />}>
+  
+          <Route path="/admin-login" element={<AdminLogin/>}/>
+          <Route path="/admin" element={<AdminLayout />}>
           {/* This matches exactly /admin */}
           <Route index element={<AdminDashboard />} />
           {/* Explicit path for /admin/dashboard */}
+          
           <Route path="dashboard" element={<AdminDashboard />} />
           {/* Explicit path for /admin/profile */}
           <Route path="issues" element={<Issues />} />

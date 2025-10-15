@@ -3,7 +3,7 @@ import {
   FaCheckCircle, FaTimesCircle, FaEye, FaMapMarkerAlt, FaCalendarAlt, 
   FaFilter, FaSort, FaSearch, FaPlay, FaCheck, FaExclamationTriangle, 
   FaClock, FaThumbsUp, FaBan, FaFlag, FaExclamation, FaSpinner, FaUsers,
-  FaVideo, FaMedal
+  FaVideo, FaMedal, FaMap
 } from 'react-icons/fa';
 import api from '../../api/axios';
 import useAuthStore from '../../store/useAuthStore';
@@ -41,6 +41,12 @@ const Verification = () => {
       setApiData(data);
     }
   }, [status, data]);
+
+  // Function to open Google Maps with the issue location
+  const openGoogleMaps = (latitude, longitude) => {
+    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
 
   const handleVerify = async (id, verifyType) => {
     setLoadingIssues(prev => ({ ...prev, [id]: true }));
@@ -417,6 +423,20 @@ const Verification = () => {
                         <FaCalendarAlt className="mr-1 text-gray-400" />
                         {formatDate(issue.createdAt)}
                       </span>
+                      
+                      {/* Google Maps Button */}
+                      {issue.location && issue.location.latitude && issue.location.longitude && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openGoogleMaps(issue.location.latitude, issue.location.longitude);
+                          }}
+                          className="flex items-center text-blue-600 hover:text-blue-800 transition-colors font-iceberg"
+                        >
+                          <FaMap className="mr-1" />
+                          View Location
+                        </button>
+                      )}
                     </div>
                     
                     <div className="flex items-center gap-4 mt-3 text-sm">
