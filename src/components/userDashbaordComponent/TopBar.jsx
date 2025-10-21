@@ -7,34 +7,13 @@ import { TbLayoutSidebarRightCollapse } from "react-icons/tb";
 import { FaCity } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-const Topbar = ({ onMenuClick, isSidebarOpen }) => {
+const Topbar = ({ onMenuClick, isSidebarOpen,name }) => {
   const [notificationCount, setNotificationCount] = useState(3);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
 
-const handleLogout = async () => {
-  setIsLoggingOut(true);
-  try {
-    // Call the backend logout endpoint via axios instance
-    const response = await api.get("/auth/logout", {
-      withCredentials: true, // ensures cookies are sent
-    });
 
-    console.log(response.data?.message || "Logged out successfully");
-
-
-    // Redirect to login page
-    navigate("/");
-  } catch (error) {
-    console.error("Logout error:", error.response?.data || error.message);
-
-    navigate("/");
-  } finally {
-    setIsLoggingOut(false);
-    setShowLogoutConfirm(false);
-  }
-};
 
 
 
@@ -66,7 +45,7 @@ const handleLogout = async () => {
           </motion.div>
           <h1 className="text-lg sm:text-xl  text-[#CBEFF1] font-bbh">
             <span className="hidden md:inline">CivicConnect </span>
-            Citizen Dashboard
+            {name}
           </h1>
         </div>
       </div>
@@ -89,37 +68,7 @@ const handleLogout = async () => {
           )}
         </div>
 
-        {/* Logout Button */}
-        <div className="relative group">
-          
-          
-          {/* Logout Confirmation Dialog */}
-          {showLogoutConfirm && (
-            <div className="absolute right-0 top-12 bg-white p-4 rounded-lg shadow-lg border border-gray-200 z-10 w-48">
-              <p className="text-sm text-gray-700 mb-3">Are you sure you want to logout?</p>
-              <div className="flex justify-between">
-                <button
-                  onClick={() => setShowLogoutConfirm(false)}
-                  className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-                  disabled={isLoggingOut}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
-                  disabled={isLoggingOut}
-                >
-                  {isLoggingOut ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    'Logout'
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        
 
         
         

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { RiLoginCircleLine, RiCloseLine, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import api from "../../api/axios";
 import Header from "../Header";
+import useAdminStore from "../../store/useAdminStore";
 
 export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +13,8 @@ export default function AdminLogin() {
     email: "",
     password: ""
   });
+
+  const { setAdmin } = useAdminStore();
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -32,20 +35,22 @@ export default function AdminLogin() {
     setIsLoading(true);
     
     try {
-      // Simulate API call - replace with actual authentication
-      const response = await api.post('/admin/auth/login', formData);
+      const response = await api.post('/admin/login', formData, {
+        withCredentials: true // Important for cookies
+      });
       
       if (response.data.success) {
         setShowModal(true);
-        // Store token and redirect to admin dashboard
-        localStorage.setItem('adminToken', response.data.token);
+        // Store admin data in Zustand store
+        setAdmin(response.data.admin);
+        
         setTimeout(() => {
           window.location.href = '/admin/dashboard';
         }, 2000);
       }
     } catch (error) {
       console.error('Login failed:', error);
-      alert('Login failed. Please check your credentials.');
+      alert(error.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }

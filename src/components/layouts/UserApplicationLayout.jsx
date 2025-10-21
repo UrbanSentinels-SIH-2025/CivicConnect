@@ -64,7 +64,7 @@ export default function UserApplicationLayout() {
   return (
     <div className="flex flex-col min-h-screen w-full bg-gray-100 overflow-hidden relative">
       {/* Top Navigation Bar */}
-      <Topbar onMenuClick={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+      <Topbar onMenuClick={toggleSidebar} isSidebarOpen={isSidebarOpen} name={" Citizen Dashboard"} />
 
       <div className="flex flex-1 pt-18 overflow-hidden">
         {/* Sidebar */}

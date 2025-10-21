@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import api from "../api/axios";
 import useAuthStore from "../store/useAuthStore";
+import useAdminStore from "../store/useAdminStore";
 import { useEffect } from "react";
 
 const fetchUser = async () => {
@@ -9,9 +10,9 @@ const fetchUser = async () => {
   return data.user;
 };
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children,allowed }) => {
   const setUser = useAuthStore((state) => state.setUser);
-
+  console.log(allowed)
   const { data: user, isLoading, isError } = useQuery({
     queryKey: ["authUser"],
     queryFn: fetchUser,

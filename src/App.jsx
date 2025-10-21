@@ -47,11 +47,10 @@ const App = () => {
         </Route>
 
         {/* Protected User Area */}
-        {/* Protected User Area */}
         <Route
           path="/user"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowed='user'>
               <UserApplicationLayout />
             </ProtectedRoute>
           }
@@ -101,10 +100,7 @@ const App = () => {
           {/* New page */}
         </Route>
 
-        <Route
-          path="/google"
-          element={<OpenInGoogleMaps lat={28.6129} lng={77.2295} />}
-        />
+       
         <Route path="/linktree" element={<CivicConnectLinkTree />} />
          {/* <VideoTranscriber /> */}
       <Route path="/transcriber" element={<VideoTranscriber videoUrl={"https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758477119/report-videos/ybe0ahljvw1uizyqctlt.webm"} />} />

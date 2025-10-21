@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import AdminSidebar from "../AdminDashboard/AdminSidebar";
-import AdminTopbar from "../AdminDashboard/AdminTopBar";
+
+import Topbar from "../userDashbaordComponent/TopBar";
+import Sidebar from "../userDashbaordComponent/SideBar";
 export default function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -22,11 +23,11 @@ export default function AdminLayout() {
   return (
     <div className="flex flex-col min-h-screen w-full bg-gray-100 overflow-hidden relative">
       {/* Top Navigation Bar */}
-      <AdminTopbar onMenuClick={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+       <Topbar onMenuClick={toggleSidebar} isSidebarOpen={isSidebarOpen} name={" Admin Dashboard"} />
 
       <div className="flex flex-1 pt-18 overflow-hidden">
-        <AdminSidebar isSidebarOpen={isSidebarOpen} onMenuClick={toggleSidebar} />
-
+         <Sidebar isSidebarOpen={isSidebarOpen} onMenuClick={toggleSidebar} />
+        
         {/* Glassmorphism Overlay (mobile only) */}
         {isSidebarOpen && (
           <div

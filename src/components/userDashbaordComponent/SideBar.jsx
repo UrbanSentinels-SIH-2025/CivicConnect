@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import {
   FaHome,
   FaMapMarkerAlt,
@@ -9,10 +10,13 @@ import {
   FaCheckCircle,
   FaAward,
   FaCog,
+  FaExclamationTriangle,
+  FaBuilding,
+  FaChartBar,
 } from "react-icons/fa";
 import useAuthStore from "../../store/useAuthStore";
 
-const navItems = [
+const userNavItems = [
   { path: "/user/dashboard", icon: <FaHome />, label: "Dashboard" },
   { path: "/user/report", icon: <FaMapMarkerAlt />, label: "Report Issue" },
   { path: "/user/my-issues", icon: <FaListAlt />, label: "Track Issue" },
@@ -21,10 +25,22 @@ const navItems = [
   { path: "/user/Settings", icon: <FaCog />, label: "Settings" },
 ];
 
+const adminNavItems = [
+  { path: '/admin/dashboard', icon: <FaHome />, label: 'Dashboard' },
+  { path: '/admin/issues', icon: <FaExclamationTriangle />, label: 'All Issues' },
+  { path: '/admin/departments', icon: <FaBuilding />, label: 'Departments' },
+  { path: '/admin/analytics', icon: <FaChartBar />, label: 'Analytics' },
+  { path: '/admin/user-management', icon: <FaChartBar />, label: 'User Management' },
+];
+
 const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
   const navigate = useNavigate();
+  const location=useLocation()
   const isMobile = window.innerWidth < 640;
   const user = useAuthStore((state) => state.user);
+  const prefix=location.pathname.split("/")[1]
+  // Determine which nav items to use based on user role
+  const navItems = prefix === 'admin' ? adminNavItems : userNavItems;
 
   useEffect(() => {
     onMenuClick();
@@ -76,6 +92,7 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
               <h3 className="font-bbh text-sm text-blue-100 drop-shadow-[0_0_5px_#3b82f6]">
                 {user?.name}
               </h3>
+              <p className="text-xs text-blue-200">{user?.role}</p>
             </div>
           </div>
         </motion.div>

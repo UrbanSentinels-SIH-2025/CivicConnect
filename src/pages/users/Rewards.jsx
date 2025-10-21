@@ -3,16 +3,13 @@ import {
   FaTrophy, 
   FaMedal, 
   FaAward, 
-  FaGift, 
   FaStar, 
   FaCoins, 
   FaChartLine, 
-  FaHistory,
   FaCheckCircle,
   FaUserFriends,
   FaCrown,
-  FaShieldAlt,
-  FaGem
+  FaShieldAlt
 } from 'react-icons/fa';
 
 const Rewards = () => {
@@ -20,8 +17,8 @@ const Rewards = () => {
   
   // Sample user data
   const userStats = {
-    points: 1250,
-    level: 7,
+    points: 100,
+    level: 3,
     rank: '#42',
     nextLevelPoints: 1500,
     reportsThisMonth: 12,
@@ -50,14 +47,6 @@ const Rewards = () => {
     { level: 8, points: 2000, reward: 'Early Feature Access' },
     { level: 9, points: 3000, reward: 'Custom Title' },
     { level: 10, points: 5000, reward: 'Legend Status' }
-  ];
-
-  // Rewards history
-  const rewardsHistory = [
-    { id: 1, name: 'Level Up', points: 100, date: '2025-09-15', type: 'earned' },
-    { id: 2, name: 'Community Verifier Badge', points: 50, date: '2025-09-10', type: 'earned' },
-    { id: 3, name: 'Report Streak', points: 25, date: '2025-09-05', type: 'earned' },
-    { id: 4, name: 'Redeemed Gift Card', points: -500, date: '2025-08-28', type: 'redeemed' }
   ];
 
   return (
@@ -136,7 +125,7 @@ const Rewards = () => {
         </p>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Only Badges and Levels */}
       <div className="flex border-b border-gray-200 mb-6">
         <button
           className={`py-2 px-4 font-medium text-sm ${activeTab === 'badges' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
@@ -151,20 +140,6 @@ const Rewards = () => {
         >
           <FaChartLine className="inline mr-2" />
           Levels
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${activeTab === 'rewards' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('rewards')}
-        >
-          <FaGift className="inline mr-2" />
-          Redeem Rewards
-        </button>
-        <button
-          className={`py-2 px-4 font-medium text-sm ${activeTab === 'history' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('history')}
-        >
-          <FaHistory className="inline mr-2" />
-          History
         </button>
       </div>
 
@@ -221,97 +196,6 @@ const Rewards = () => {
                 </span>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'rewards' && (
-        <div className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
-          <h3 className="font-semibold text-lg text-indigo-700 mb-4">Redeem Your Points</h3>
-          <p className="text-gray-600 mb-6">You have <span className="font-bold text-yellow-600">{userStats.points} points</span> available to redeem</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Reward 1 */}
-            <div className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm hover:shadow-md transition-all">
-              <div className="bg-blue-100 rounded-lg p-3 mb-4 text-center">
-                <FaGift className="text-blue-600 text-3xl mx-auto" />
-              </div>
-              <h4 className="font-medium text-gray-800 mb-2">$10 Gift Card</h4>
-              <p className="text-sm text-gray-600 mb-4">Redeem for popular retailers</p>
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold text-yellow-600">500 points</span>
-                <button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={userStats.points < 500}
-                >
-                  Redeem
-                </button>
-              </div>
-            </div>
-
-            {/* Reward 2 */}
-            <div className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm hover:shadow-md transition-all">
-              <div className="bg-green-100 rounded-lg p-3 mb-4 text-center">
-                <FaGem className="text-green-600 text-3xl mx-auto" />
-              </div>
-              <h4 className="font-medium text-gray-800 mb-2">Premium Badge</h4>
-              <p className="text-sm text-gray-600 mb-4">Exclusive profile decoration</p>
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold text-yellow-600">750 points</span>
-                <button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={userStats.points < 750}
-                >
-                  Redeem
-                </button>
-              </div>
-            </div>
-
-            {/* Reward 3 */}
-            <div className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm hover:shadow-md transition-all">
-              <div className="bg-purple-100 rounded-lg p-3 mb-4 text-center">
-                <FaCrown className="text-purple-600 text-3xl mx-auto" />
-              </div>
-              <h4 className="font-medium text-gray-800 mb-2">Community Leader Status</h4>
-              <p className="text-sm text-gray-600 mb-4">Special recognition for 30 days</p>
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold text-yellow-600">1000 points</span>
-                <button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={userStats.points < 1000}
-                >
-                  Redeem
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'history' && (
-        <div className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
-          <h3 className="font-semibold text-lg text-indigo-700 mb-4">Rewards History</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 text-sm font-medium text-gray-500">Date</th>
-                  <th className="text-left py-2 text-sm font-medium text-gray-500">Activity</th>
-                  <th className="text-right py-2 text-sm font-medium text-gray-500">Points</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rewardsHistory.map(item => (
-                  <tr key={item.id} className="border-b border-gray-100">
-                    <td className="py-3 text-sm text-gray-600">{new Date(item.date).toLocaleDateString()}</td>
-                    <td className="py-3 text-sm text-gray-800">{item.name}</td>
-                    <td className={`py-3 text-sm font-medium text-right ${item.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
-                      {item.type === 'earned' ? '+' : ''}{item.points}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
       )}
