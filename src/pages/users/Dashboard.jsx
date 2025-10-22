@@ -6,6 +6,7 @@ import ActionGrid from "../../components/ActionGrid";
 import RecentReports from "../../components/RecentReports";
 import RecentBadges from "../../components/RecentBadges";
 import DashboardStats from "../../components/DashboardStats";
+import StatsCard from "./StatsCard";
 const Dashboard = () => {
   const { data: reports = [], status, error } = useReports();
   console.log(reports);
@@ -21,7 +22,6 @@ const Dashboard = () => {
       reportsSubmitted: reports.length,
       issuesResolved: 31,
       verifications: 127,
-      communityRank: "#12",
     });
   }, [reports]);
 
@@ -38,8 +38,8 @@ const Dashboard = () => {
       </header>
 
       {/* Top Stats Section */}
-      <DashboardStats stats={stats} />
-
+      {/* <DashboardStats stats={stats} /> */}
+     <StatsCard />
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column */}

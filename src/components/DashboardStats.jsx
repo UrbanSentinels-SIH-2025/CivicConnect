@@ -24,17 +24,11 @@ const DashboardStats = ({ stats }) => {
       borderGlow: "hover:border-purple-400 hover:shadow-[0_0_20px_#a855f7]",
       value: stats.verifications || 0,
     },
-    {
-      title: "Community Rank",
-      icon: <FaMedal className="text-white text-xl" />,
-      color: "from-amber-500 to-amber-600",
-      borderGlow: "hover:border-amber-300 hover:shadow-[0_0_20px_#fbbf24]",
-      value: stats.communityRank || 0,
-    },
+   
   ];
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       {cards.map((card, index) => (
         <div
           key={index}

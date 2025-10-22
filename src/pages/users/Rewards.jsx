@@ -50,11 +50,15 @@ const Rewards = () => {
   ];
 
   return (
-    <div className="p-4 md:p-6 min-h-screen ">
+    <div className="p-4 md:p-6 min-h-screen font-rozha text-gray-900">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Rewards & Recognition</h1>
-        <p className="text-gray-600">Earn points, badges, and rewards for your civic contributions</p>
+        <h1 className="text-2xl font-bold text-gray-800 font-iceberg tracking-tight">
+          Rewards & Recognition
+        </h1>
+        <p className="text-gray-600">
+          Earn points, badges, and rewards for your civic contributions
+        </p>
       </div>
 
       {/* Stats Overview */}
@@ -65,9 +69,9 @@ const Rewards = () => {
             <FaCoins className="text-white text-xl" />
           </div>
           <div>
-            <p className="text-sm opacity-80">Total Points</p>
-            <p className="text-2xl font-bold">{userStats.points}</p>
-            <p className="text-xs opacity-80 mt-1">{userStats.points} points earned</p>
+            <p className="text-sm opacity-80 font-iceberg">Total Points</p>
+            <p className="text-2xl font-bold font-rozha">{userStats.points}</p>
+            <p className="text-xs opacity-80 mt-1 font-rozha">{userStats.points} points earned</p>
           </div>
         </div>
 
@@ -77,9 +81,9 @@ const Rewards = () => {
             <FaChartLine className="text-white text-xl" />
           </div>
           <div>
-            <p className="text-sm opacity-80">Current Level</p>
-            <p className="text-2xl font-bold">{userStats.level}</p>
-            <p className="text-xs opacity-80 mt-1">{userStats.nextLevelPoints - userStats.points} to next level</p>
+            <p className="text-sm opacity-80 font-iceberg">Current Level</p>
+            <p className="text-2xl font-bold font-rozha">{userStats.level}</p>
+            <p className="text-xs opacity-80 mt-1 font-rozha">{userStats.nextLevelPoints - userStats.points} to next level</p>
           </div>
         </div>
 
@@ -89,9 +93,9 @@ const Rewards = () => {
             <FaTrophy className="text-white text-xl" />
           </div>
           <div>
-            <p className="text-sm opacity-80">Community Rank</p>
-            <p className="text-2xl font-bold">{userStats.rank}</p>
-            <p className="text-xs opacity-80 mt-1">Top contributor</p>
+            <p className="text-sm opacity-80 font-iceberg">Community Rank</p>
+            <p className="text-2xl font-bold font-rozha">{userStats.rank}</p>
+            <p className="text-xs opacity-80 mt-1 font-rozha">Top contributor</p>
           </div>
         </div>
 
@@ -101,18 +105,18 @@ const Rewards = () => {
             <FaUserFriends className="text-white text-xl" />
           </div>
           <div>
-            <p className="text-sm opacity-80">Monthly Activity</p>
-            <p className="text-2xl font-bold">{userStats.reportsThisMonth + userStats.verificationsThisMonth}</p>
-            <p className="text-xs opacity-80 mt-1">{userStats.reportsThisMonth} reports, {userStats.verificationsThisMonth} verifications</p>
+            <p className="text-sm opacity-80 font-iceberg">Monthly Activity</p>
+            <p className="text-2xl font-bold font-rozha">{userStats.reportsThisMonth + userStats.verificationsThisMonth}</p>
+            <p className="text-xs opacity-80 mt-1 font-rozha">{userStats.reportsThisMonth} reports, {userStats.verificationsThisMonth} verifications</p>
           </div>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
+      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 mb-8 border border-white/40">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">Level {userStats.level} Progress</span>
-          <span className="text-sm font-medium text-gray-700">{userStats.points} / {userStats.nextLevelPoints} points</span>
+          <span className="text-sm font-medium text-gray-700 font-iceberg">Level {userStats.level} Progress</span>
+          <span className="text-sm font-medium text-gray-700 font-iceberg">{userStats.points} / {userStats.nextLevelPoints} points</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2.5">
           <div 
@@ -120,7 +124,7 @@ const Rewards = () => {
             style={{ width: `${(userStats.points / userStats.nextLevelPoints) * 100}%` }}
           ></div>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-gray-500 mt-2 font-rozha">
           Reach {userStats.nextLevelPoints} points to advance to Level {userStats.level + 1}
         </p>
       </div>
@@ -128,14 +132,14 @@ const Rewards = () => {
       {/* Tabs - Only Badges and Levels */}
       <div className="flex border-b border-gray-200 mb-6">
         <button
-          className={`py-2 px-4 font-medium text-sm ${activeTab === 'badges' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+          className={`py-2 px-4 font-medium text-sm font-iceberg ${activeTab === 'badges' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           onClick={() => setActiveTab('badges')}
         >
           <FaMedal className="inline mr-2" />
           Badges
         </button>
         <button
-          className={`py-2 px-4 font-medium text-sm ${activeTab === 'levels' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+          className={`py-2 px-4 font-medium text-sm font-iceberg ${activeTab === 'levels' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
           onClick={() => setActiveTab('levels')}
         >
           <FaChartLine className="inline mr-2" />
@@ -145,22 +149,30 @@ const Rewards = () => {
 
       {/* Tab Content */}
       {activeTab === 'badges' && (
-        <div className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
-          <h3 className="font-semibold text-lg text-indigo-700 mb-4">Your Badges</h3>
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 mb-8 border border-white/40">
+          <h3 className="font-semibold text-lg text-indigo-700 mb-4 font-iceberg">Your Badges</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {badges.map(badge => (
               <div 
                 key={badge.id} 
-                className={`p-4 rounded-xl border ${badge.earned ? 'bg-white border-blue-200 shadow-sm' : 'bg-gray-100 border-gray-200 opacity-70'} transition-all hover:shadow-md`}
+                className={`p-4 rounded-xl border transition-all hover:shadow-md ${
+                  badge.earned 
+                    ? 'bg-white/90 border-blue-200 shadow-sm hover:border-blue-300' 
+                    : 'bg-gray-100/80 border-gray-200 opacity-70'
+                }`}
               >
                 <div className="flex items-center mb-3">
                   <div className="text-2xl mr-3">
                     {badge.icon}
                   </div>
-                  <h4 className="font-medium text-gray-800">{badge.name}</h4>
+                  <h4 className="font-medium text-gray-800 font-iceberg">{badge.name}</h4>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">{badge.description}</p>
-                <div className={`text-xs font-medium px-2 py-1 rounded-full inline-block ${badge.earned ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-800'}`}>
+                <p className="text-sm text-gray-600 mb-3 font-rozha">{badge.description}</p>
+                <div className={`text-xs font-medium px-2 py-1 rounded-full inline-block font-iceberg ${
+                  badge.earned 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-gray-200 text-gray-800'
+                }`}>
                   {badge.earned ? 'Earned' : 'Locked'}
                 </div>
               </div>
@@ -170,28 +182,38 @@ const Rewards = () => {
       )}
 
       {activeTab === 'levels' && (
-        <div className="bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
-          <h3 className="font-semibold text-lg text-indigo-700 mb-4">Level Progression</h3>
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 mb-8 border border-white/40">
+          <h3 className="font-semibold text-lg text-indigo-700 mb-4 font-iceberg">Level Progression</h3>
           <div className="space-y-4">
             {levels.map(level => (
               <div 
                 key={level.level} 
-                className={`flex items-center justify-between p-4 rounded-xl border ${userStats.level >= level.level ? 'bg-white border-blue-200 shadow-sm' : 'bg-gray-50 border-gray-200'} ${userStats.level === level.level ? 'ring-2 ring-blue-500' : ''}`}
+                className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                  userStats.level >= level.level 
+                    ? 'bg-white/90 border-blue-200 shadow-sm hover:shadow-md' 
+                    : 'bg-gray-50/80 border-gray-200'
+                } ${userStats.level === level.level ? 'ring-2 ring-blue-500' : ''}`}
               >
                 <div className="flex items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${userStats.level >= level.level ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-600'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 transition-all ${
+                    userStats.level >= level.level 
+                      ? 'bg-blue-100 text-blue-600' 
+                      : 'bg-gray-200 text-gray-600'
+                  }`}>
                     {userStats.level > level.level ? (
                       <FaCheckCircle className="text-green-500" />
                     ) : (
-                      <span className="font-bold">{level.level}</span>
+                      <span className="font-bold font-rozha">{level.level}</span>
                     )}
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-800">Level {level.level}</h4>
-                    <p className="text-sm text-gray-600">{level.points} points</p>
+                    <h4 className="font-medium text-gray-800 font-iceberg">Level {level.level}</h4>
+                    <p className="text-sm text-gray-600 font-rozha">{level.points} points</p>
                   </div>
                 </div>
-                <span className={`text-sm font-medium ${userStats.level >= level.level ? 'text-green-600' : 'text-gray-500'}`}>
+                <span className={`text-sm font-medium font-iceberg ${
+                  userStats.level >= level.level ? 'text-green-600' : 'text-gray-500'
+                }`}>
                   {userStats.level >= level.level ? level.reward : 'Locked'}
                 </span>
               </div>
@@ -201,16 +223,16 @@ const Rewards = () => {
       )}
 
       {/* How to Earn Section */}
-      <div className="bg-gradient-to-r from-white to-green-50 rounded-xl shadow-lg p-6">
-        <h3 className="font-semibold text-lg text-green-700 mb-4">How to Earn Points</h3>
+      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/40">
+        <h3 className="font-semibold text-lg text-green-700 mb-4 font-iceberg">How to Earn Points</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-start">
             <div className="bg-green-100 p-2 rounded-lg mr-3">
               <FaCheckCircle className="text-green-600 text-xl" />
             </div>
             <div>
-              <h4 className="font-medium text-gray-800">Submit Reports</h4>
-              <p className="text-sm text-gray-600">Earn 25 points for each verified issue report</p>
+              <h4 className="font-medium text-gray-800 font-iceberg">Submit Reports</h4>
+              <p className="text-sm text-gray-600 font-rozha">Earn 25 points for each verified issue report</p>
             </div>
           </div>
           <div className="flex items-start">
@@ -218,8 +240,8 @@ const Rewards = () => {
               <FaUserFriends className="text-blue-600 text-xl" />
             </div>
             <div>
-              <h4 className="font-medium text-gray-800">Verify Issues</h4>
-              <p className="text-sm text-gray-600">Earn 10 points for each accurate verification</p>
+              <h4 className="font-medium text-gray-800 font-iceberg">Verify Issues</h4>
+              <p className="text-sm text-gray-600 font-rozha">Earn 10 points for each accurate verification</p>
             </div>
           </div>
           <div className="flex items-start">
@@ -227,8 +249,8 @@ const Rewards = () => {
               <FaChartLine className="text-purple-600 text-xl" />
             </div>
             <div>
-              <h4 className="font-medium text-gray-800">Maintain Streaks</h4>
-              <p className="text-sm text-gray-600">Bonus points for consistent weekly activity</p>
+              <h4 className="font-medium text-gray-800 font-iceberg">Maintain Streaks</h4>
+              <p className="text-sm text-gray-600 font-rozha">Bonus points for consistent weekly activity</p>
             </div>
           </div>
           <div className="flex items-start">
@@ -236,8 +258,8 @@ const Rewards = () => {
               <FaTrophy className="text-yellow-600 text-xl" />
             </div>
             <div>
-              <h4 className="font-medium text-gray-800">Achieve Badges</h4>
-              <p className="text-sm text-gray-600">Earn special rewards for completing milestones</p>
+              <h4 className="font-medium text-gray-800 font-iceberg">Achieve Badges</h4>
+              <p className="text-sm text-gray-600 font-rozha">Earn special rewards for completing milestones</p>
             </div>
           </div>
         </div>

@@ -41,6 +41,7 @@ const Sidebar = ({ isSidebarOpen, onMenuClick }) => {
   const location = useLocation();
   const isMobile = window.innerWidth < 640;
   const user = useAuthStore((state) => state.user);
+  
   const admin = useAdminStore((state) => state.admin);
   const clearUser = useAuthStore((state) => state.clearUser);
   const clearAdmin = useAdminStore((state) => state.clearAdmin);

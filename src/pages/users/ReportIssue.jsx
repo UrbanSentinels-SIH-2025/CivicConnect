@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import api from "../../api/axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ReportIssue = () => {
   const [recording, setRecording] = useState(false);
@@ -17,7 +18,8 @@ const ReportIssue = () => {
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
-
+  
+const queryClient = useQueryClient();
   // Detect if device is mobile
   useEffect(() => {
     const checkMobile = () => {
@@ -35,6 +37,51 @@ const ReportIssue = () => {
       window.removeEventListener("resize", checkMobile);
     };
   }, []);
+
+  // Reset all state to default values
+  const handleCancel = () => {
+    // Stop recording if active
+    if (mediaRecorder && recording) {
+      mediaRecorder.stop();
+    }
+
+    // Stop camera if active
+    if (streamRef.current) {
+      const tracks = streamRef.current.getTracks();
+      tracks.forEach((track) => track.stop());
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    }
+
+    // Clear timer if active
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    // Revoke video URL to free memory
+    if (videoURL) {
+      URL.revokeObjectURL(videoURL);
+    }
+
+    // Reset all state
+    setRecording(false);
+    setVideoURL(null);
+    setMediaRecorder(null);
+    setChunks([]);
+    setCategory("");
+    setLocation(null);
+    setIsCameraActive(false);
+    setUploadStatus("");
+    setIsUploading(false);
+    setRecordingTime(0);
+    
+    // Reset refs
+    chunksRef.current = [];
+    
+    setUploadStatus("Cancelled. All changes have been reset.");
+    setTimeout(() => setUploadStatus(""), 3000);
+  };
 
   // Get user location
   const getLocation = () => {
@@ -272,6 +319,8 @@ const ReportIssue = () => {
 
       const data = await res.json();
       console.log("Upload success:", data);
+      // Invalidate and refetch user reports
+        queryClient.invalidateQueries(["userReports"]); 
       setUploadStatus("Issue reported successfully!");
 
       // Reset form
@@ -315,8 +364,12 @@ const ReportIssue = () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      // Revoke video URL to prevent memory leaks
+      if (videoURL) {
+        URL.revokeObjectURL(videoURL);
+      }
     };
-  }, []);
+  }, [videoURL]);
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-[#D9F3FF] via-[#EAF9FB] to-[#fafa98]   font-rozha">
@@ -417,68 +470,66 @@ const ReportIssue = () => {
               </button>
             )}
 
-
-           {!recording ? (
-  <button
-    onClick={startRecording}
-    disabled={!isCameraActive}
-    className={`flex items-center justify-center px-5 py-3 font-iceberg rounded-2xl transition-all duration-300 transform shadow-md ${
-      isCameraActive
-        ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-[0_0_15px_#22c55e] hover:scale-105"
-        : "bg-gray-500 text-gray-300 cursor-not-allowed opacity-70"
-    }`}
-  >
-    <svg
-      className="w-5 h-5 mr-2"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
-      />
-    </svg>
-    Start Recording
-  </button>
-) : (
-  <button
-    onClick={stopRecording}
-    className="flex items-center justify-center px-5 py-3 font-iceberg rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-[0_0_15px_#ef4444] transition-all duration-300 transform hover:scale-105"
-  >
-    <svg
-      className="w-5 h-5 mr-2"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
-      />
-    </svg>
-    Stop Recording
-  </button>
-)}
-
+            {!recording ? (
+              <button
+                onClick={startRecording}
+                disabled={!isCameraActive}
+                className={`flex items-center justify-center px-5 py-3 font-iceberg rounded-2xl transition-all duration-300 transform shadow-md ${
+                  isCameraActive
+                    ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-[0_0_15px_#22c55e] hover:scale-105"
+                    : "bg-gray-500 text-gray-300 cursor-not-allowed opacity-70"
+                }`}
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+                  />
+                </svg>
+                Start Recording
+              </button>
+            ) : (
+              <button
+                onClick={stopRecording}
+                className="flex items-center justify-center px-5 py-3 font-iceberg rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-[0_0_15px_#ef4444] transition-all duration-300 transform hover:scale-105"
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+                  />
+                </svg>
+                Stop Recording
+              </button>
+            )}
           </div>
         </div>
 
@@ -489,21 +540,20 @@ const ReportIssue = () => {
               Issue Category
             </label>
             <div className="grid font-rubik grid-cols-2 md:grid-cols-3 gap-3">
-             {["Road", "Water", "Electricity", "Sanitation"].map((opt) => (
-  <button
-    key={opt}
-    type="button"
-    onClick={() => setCategory(opt)}
-    className={`py-3 px-6 rounded-2xl text-sm font-bold transition-all duration-300 transform ${
-      category === opt
-        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-2 border-blue-400 shadow-[0_0_15px_#3b82f6] scale-105"
-        : "bg-black text-gray-300 border border-gray-700 hover:border-blue-500 hover:shadow-[0_0_12px_#3b82f6] hover:text-white hover:scale-105"
-    }`}
-  >
-    {opt}
-  </button>
-))}
-
+              {["Road", "Water", "Electricity", "Sanitation"].map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setCategory(opt)}
+                  className={`py-3 px-6 rounded-2xl text-sm font-bold transition-all duration-300 transform ${
+                    category === opt
+                      ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-2 border-blue-400 shadow-[0_0_15px_#3b82f6] scale-105"
+                      : "bg-black text-gray-300 border border-gray-700 hover:border-blue-500 hover:shadow-[0_0_12px_#3b82f6] hover:text-white hover:scale-105"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -560,58 +610,108 @@ const ReportIssue = () => {
                 </span>
               </div>
 
-              <button
-                onClick={uploadVideo}
-                disabled={isUploading}
-                className={`w-full flex items-center justify-center px-4 py-3 rounded-xl transition-all duration-300 shadow-md ${
-                  isUploading
-                    ? "bg-purple-400 cursor-not-allowed"
-                    : "bg-purple-600 hover:bg-purple-700 hover:-translate-y-1"
-                }`}
-              >
-                {isUploading ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={uploadVideo}
+                  disabled={isUploading}
+                  className={`flex items-center justify-center px-4 py-3 rounded-xl transition-all duration-300 shadow-md ${
+                    isUploading
+                      ? "bg-purple-400 cursor-not-allowed"
+                      : "bg-purple-600 hover:bg-purple-700 hover:-translate-y-1"
+                  }`}
+                >
+                  {isUploading ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
                         stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    Submit Issue Report
-                  </>
-                )}
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Submit Issue Report
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={handleCancel}
+                  disabled={isUploading}
+                  className="flex items-center justify-center px-4 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1 shadow-md"
+                >
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Cancel button when no video preview is shown */}
+          {!videoURL && (isCameraActive || recording || category) && (
+            <div className="mt-6">
+              <button
+                onClick={handleCancel}
+                className="w-full flex items-center justify-center px-4 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-300 transform hover:-translate-y-1 shadow-md"
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                Cancel & Reset
               </button>
             </div>
           )}
@@ -621,7 +721,7 @@ const ReportIssue = () => {
       {uploadStatus && (
         <div
           className={`mt-4 p-4 rounded-xl text-center transition-all duration-300 ${
-            uploadStatus.includes("success")
+            uploadStatus.includes("success") || uploadStatus.includes("Cancelled")
               ? "bg-green-100 text-green-700 border border-green-200"
               : uploadStatus.includes("Failed") ||
                 uploadStatus.includes("Please") ||

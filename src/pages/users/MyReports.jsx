@@ -7,21 +7,17 @@ import {
   FaFilter,
   FaSort,
   FaSearch,
-  FaEye,
-  FaMapMarkerAlt,
   FaCalendarAlt,
   FaTimes,
   FaPlay,
-  FaClock,
   FaCheck,
   FaExclamationTriangle,
-  FaVideo,
-  FaThumbsUp,
 } from "react-icons/fa";
 import { useReports } from "../../hooks/tanstack/useReports";
+import StatsCard from "./StatsCard";
 
 const MyReports = () => {
-  const { data: reports = [], status, error } = useReports();
+  const { data: reports = [], error } = useReports();
 
   const [filteredReports, setFilteredReports] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +26,6 @@ const MyReports = () => {
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedReport, setSelectedReport] = useState(null);
-  const [viewMode, setViewMode] = useState("grid");
   const [playingVideo, setPlayingVideo] = useState(null);
   const videoRefs = useRef({});
 
@@ -120,13 +115,6 @@ const MyReports = () => {
     Verified: "bg-purple-100 text-purple-800",
     "In Progress": "bg-yellow-100 text-yellow-800",
     Resolved: "bg-green-100 text-green-800",
-  };
-
-  const statusIcons = {
-    Reported: <FaClock className="text-blue-500" />,
-    Verified: <FaCheck className="text-purple-500" />,
-    "In Progress": <FaExclamationTriangle className="text-yellow-500" />,
-    Resolved: <FaCheckCircle className="text-green-500" />,
   };
 
   const handleVideoClick = (e, reportId) => {
@@ -311,74 +299,7 @@ const MyReports = () => {
         </p>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Reports */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-4 flex items-center text-white transform hover:scale-105 transition-all duration-300 border border-transparent hover:border-blue-400 hover:shadow-[0_0_20px_#3b82f6]">
-          <div className="rounded-full bg-white/20 p-3 mr-4 backdrop-blur-sm">
-            <FaFlag className="text-white text-xl" />
-          </div>
-          <div>
-            <p className="text-sm opacity-80 font-iceberg">Total Reports</p>
-            <p className="text-2xl font-bold">{reports.length}</p>
-            <p className="text-xs opacity-80 mt-1">Your contributions</p>
-          </div>
-        </div>
-
-        {/* In Progress */}
-        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-4 flex items-center text-white transform hover:scale-105 transition-all duration-300 border border-transparent hover:border-yellow-400 hover:shadow-[0_0_20px_#eab308]">
-          <div className="rounded-full bg-white/20 p-3 mr-4 backdrop-blur-sm">
-            <FaExclamationTriangle className="text-white text-xl" />
-          </div>
-          <div>
-            <p className="text-sm opacity-80 font-iceberg">In Progress</p>
-            <p className="text-2xl font-bold">
-              {
-                reportsWithStatus.filter((r) => r.status === "In Progress")
-                  .length
-              }
-            </p>
-            <p className="text-xs opacity-80 mt-1">Being addressed</p>
-          </div>
-        </div>
-
-        {/* Resolved */}
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-4 flex items-center text-white transform hover:scale-105 transition-all duration-300 border border-transparent hover:border-green-400 hover:shadow-[0_0_20px_#22c55e]">
-          <div className="rounded-full bg-white/20 p-3 mr-4 backdrop-blur-sm">
-            <FaCheckCircle className="text-white text-xl" />
-          </div>
-          <div>
-            <p className="text-sm opacity-80 font-iceberg">Resolved</p>
-            <p className="text-2xl font-bold">
-              {reportsWithStatus.filter((r) => r.status === "Resolved").length}
-            </p>
-            <p className="text-xs opacity-80 mt-1">Successfully fixed</p>
-          </div>
-        </div>
-
-        {/* Avg. Verifications */}
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-4 flex items-center text-white transform hover:scale-105 transition-all duration-300 border border-transparent hover:border-purple-400 hover:shadow-[0_0_20px_#a855f7]">
-          <div className="rounded-full bg-white/20 p-3 mr-4 backdrop-blur-sm">
-            <FaUsers className="text-white text-xl" />
-          </div>
-          <div>
-            <p className="text-sm opacity-80 font-iceberg">
-              Avg. Verifications
-            </p>
-            <p className="text-2xl font-bold">
-              {reportsWithStatus.length > 0
-                ? Math.round(
-                    reportsWithStatus.reduce(
-                      (sum, report) => sum + report.totalVerifications,
-                      0
-                    ) / reportsWithStatus.length
-                  )
-                : 0}
-            </p>
-            <p className="text-xs opacity-80 mt-1">Community support</p>
-          </div>
-        </div>
-      </div>
+      <StatsCard />
 
       {/* Filters and Search */}
       <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 mb-8 border border-white/40">
@@ -438,29 +359,6 @@ const MyReports = () => {
               <FaSort className="mr-1" />
               {sortOrder === "asc" ? "Asc" : "Desc"}
             </button>
-
-            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
-              <button
-                className={`px-3 py-2 text-sm ${
-                  viewMode === "list"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-white hover:bg-gray-50"
-                } transition font-rozha`}
-                onClick={() => setViewMode("list")}
-              >
-                List
-              </button>
-              <button
-                className={`px-3 py-2 text-sm ${
-                  viewMode === "grid"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-white hover:bg-gray-50"
-                } transition font-rozha`}
-                onClick={() => setViewMode("grid")}
-              >
-                Grid
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -474,80 +372,17 @@ const MyReports = () => {
           </h2>
         </div>
 
-        {viewMode === "list" ? (
-          /* List View */
-          <div className="space-y-4">
-            {reportsWithStatus.map((report) => (
-              <div
-                key={report._id}
-                className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-4 border-l-4 border-blue-500 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:translate-x-1"
-                onClick={() => setSelectedReport(report)}
-              >
-                <div className="flex flex-col md:flex-row gap-4">
-                  {/* Video Thumbnail/Player */}
-                  <div className="relative md:w-1/3 h-40 rounded-lg overflow-hidden">
-                    <VideoThumbnail
-                      report={report}
-                      isPlaying={playingVideo === report._id}
-                      onClick={(e) => handleVideoClick(e, report._id)}
-                    />
-                  </div>
-
-                  {/* Report Details */}
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-800 font-iceberg text-lg">
-                      {report.title}
-                    </h4>
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs ${
-                          statusColors[report.status] ||
-                          "bg-gray-100 text-gray-800"
-                        } font-iceberg`}
-                      >
-                        {report.status}
-                      </span>
-                      <span className="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-800 font-iceberg">
-                        {report.category}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
-                      <span className="flex items-center">
-                        <FaCalendarAlt className="mr-1 text-gray-400" />
-                        {formatDate(report.createdAt)}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-4 mt-3 text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <FaCheckCircle className="text-green-500 mr-1" />
-                        <span>{report.totalVerifications} verifications</span>
-                        <span className="text-xs text-gray-400 ml-1">
-                          ({report.verificationCounts.real} real,{" "}
-                          {report.verificationCounts.fake} fake)
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Progress Tracker */}
-                    <ProgressTracker report={report} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reportsWithStatus.map((report) => (
-              <div
-                key={report._id}
-                className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 flex flex-col border border-white/40 transform hover:scale-105"
-                onClick={() => setSelectedReport(report)}
-              >
+        {/* List View Only */}
+        <div className="space-y-4">
+          {reportsWithStatus.map((report) => (
+            <div
+              key={report._id}
+              className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-4 border-l-4 border-blue-500 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:translate-x-1"
+              onClick={() => setSelectedReport(report)}
+            >
+              <div className="flex flex-col md:flex-row gap-4">
                 {/* Video Thumbnail/Player */}
-                <div className="relative h-48">
+                <div className="relative md:w-1/3 h-40 rounded-lg overflow-hidden">
                   <VideoThumbnail
                     report={report}
                     isPlaying={playingVideo === report._id}
@@ -556,11 +391,11 @@ const MyReports = () => {
                 </div>
 
                 {/* Report Details */}
-                <div className="p-4 flex-grow">
-                  <h4 className="font-medium text-gray-800 mb-2 font-iceberg text-lg">
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-800 font-iceberg text-lg">
                     {report.title}
                   </h4>
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
                     <span
                       className={`px-3 py-1 rounded-full text-xs ${
                         statusColors[report.status] ||
@@ -574,64 +409,31 @@ const MyReports = () => {
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-xs text-gray-500 mb-3">
+                  <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
                     <span className="flex items-center">
-                      <FaCheckCircle className="text-green-500 mr-1" />
-                      {report.totalVerifications}
+                      <FaCalendarAlt className="mr-1 text-gray-400" />
+                      {formatDate(report.createdAt)}
                     </span>
-
-                    <span>{formatDate(report.createdAt)}</span>
                   </div>
 
-                  {/* Simplified Progress for Grid View */}
-                  <div className="mt-2">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-500 font-iceberg">
-                        Progress:
+                  <div className="flex items-center gap-4 mt-3 text-sm">
+                    <div className="flex items-center text-gray-600">
+                      <FaCheckCircle className="text-green-500 mr-1" />
+                      <span>{report.totalVerifications} verifications</span>
+                      <span className="text-xs text-gray-400 ml-1">
+                        ({report.verificationCounts.real} real,{" "}
+                        {report.verificationCounts.fake} fake)
                       </span>
-                      <span
-                        className={`text-xs font-medium font-iceberg ${
-                          report.status === "Resolved"
-                            ? "text-green-600"
-                            : report.status === "In Progress"
-                            ? "text-yellow-600"
-                            : report.status === "Verified"
-                            ? "text-purple-600"
-                            : "text-blue-600"
-                        }`}
-                      >
-                        {report.status}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <div
-                        className={`h-1.5 rounded-full ${
-                          report.status === "Resolved"
-                            ? "bg-green-500"
-                            : report.status === "In Progress"
-                            ? "bg-yellow-500"
-                            : report.status === "Verified"
-                            ? "bg-purple-500"
-                            : "bg-blue-500"
-                        }`}
-                        style={{
-                          width:
-                            report.status === "Resolved"
-                              ? "100%"
-                              : report.status === "In Progress"
-                              ? "75%"
-                              : report.status === "Verified"
-                              ? "50%"
-                              : "25%",
-                        }}
-                      ></div>
                     </div>
                   </div>
+
+                  {/* Progress Tracker */}
+                  <ProgressTracker report={report} />
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
 
         {reportsWithStatus.length === 0 && (
           <div className="text-center py-10 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/40">
