@@ -300,7 +300,7 @@ const MyReports = () => {
   }
 
   return (
-    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-br from-[#D9F3FF] via-[#EAF9FB] to-[#CBEFF1] font-rozha text-gray-900">
+    <div className="p-4 md:p-6 min-h-screen  font-rozha text-gray-900">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800 font-iceberg tracking-tight">

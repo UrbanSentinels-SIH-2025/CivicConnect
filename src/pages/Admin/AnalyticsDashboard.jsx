@@ -188,7 +188,7 @@ const AnalyticsDashboard = () => {
   }
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+    <div className="p-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
         <div>

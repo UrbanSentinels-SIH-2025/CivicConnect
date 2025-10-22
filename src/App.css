@@ -26,3 +26,6 @@
   --font-rozha: Rozha One,"sans-serif";
   
 }
+@theme {
+  --background-image-custom-gradient: linear-gradient(to bottom right, #D9F3FF, #EAF9FB, #CBEFF1);
+}

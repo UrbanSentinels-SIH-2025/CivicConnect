@@ -170,7 +170,7 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-200">
+    <div className="p-6 min-h-screen ">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
         <p className="text-gray-600">Manage department heads and administrators</p>

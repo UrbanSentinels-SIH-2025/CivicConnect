@@ -41,7 +41,7 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-   <div className="p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-200
+   <div className="p-6 min-h-screen font-rozha text-gray-900
 ">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>

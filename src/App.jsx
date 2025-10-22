@@ -28,6 +28,7 @@ import VideoTranscriber from "./components/DepartmentDashboard.jsx/VideoTranscri
 import TaskComplete from "./pages/Departements/TaskComplete";
 import Resolved from "./pages/Departements/Resolved";
 import AdminLogin from "./components/Admin/AdminLogin";
+import ProtectedAdminRoute from "./middleware/ProtectedAdminRoute";
 const App = () => {
   return (
     <Router>
@@ -50,7 +51,7 @@ const App = () => {
         <Route
           path="/user"
           element={
-            <ProtectedRoute allowed='user'>
+            <ProtectedRoute allowed={"user"}>
               <UserApplicationLayout />
             </ProtectedRoute>
           }
@@ -68,20 +69,30 @@ const App = () => {
           <Route path="settings" element={<Settings />} />
           <Route path="rewards" element={<Rewards />} />
         </Route>
-  
-          <Route path="/admin-login" element={<AdminLogin/>}/>
-          <Route path="/admin" element={<AdminLayout />}>
+
+        <Route path="/admin-login" element={<AdminLogin />} />
+        
+        {/* Protected Admin Area */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedAdminRoute >
+              <AdminLayout />
+            </ProtectedAdminRoute>
+          }
+        >
           {/* This matches exactly /admin */}
           <Route index element={<AdminDashboard />} />
           {/* Explicit path for /admin/dashboard */}
-          
+
           <Route path="dashboard" element={<AdminDashboard />} />
           {/* Explicit path for /admin/profile */}
           <Route path="issues" element={<Issues />} />
           <Route path="departments" element={<Departments />} />
           <Route path="analytics" element={<AnalyticsDashboard />} />
-          <Route path="issue-detail/:id" element={<IssueDetail/>}/>
+          <Route path="issue-detail/:id" element={<IssueDetail />} />
           <Route path="user-management" element={<UserManagement />} />
+
           <Route
             path="department/:departmentName"
             element={<StreetDepartmentDashboard />}
@@ -96,16 +107,23 @@ const App = () => {
           <Route path="progress" element={<Progress />} />
           <Route path="resolved" element={<Resolved />} />
           <Route path="issue/:issueId" element={<IssueDetail />} />{" "}
-          <Route path="mark-as-complete/:issueId" element={<TaskComplete/>} />
+          <Route path="mark-as-complete/:issueId" element={<TaskComplete />} />
           {/* New page */}
         </Route>
 
-       
         <Route path="/linktree" element={<CivicConnectLinkTree />} />
-         {/* <VideoTranscriber /> */}
-      <Route path="/transcriber" element={<VideoTranscriber videoUrl={"https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758477119/report-videos/ybe0ahljvw1uizyqctlt.webm"} />} />
+        {/* <VideoTranscriber /> */}
+        <Route
+          path="/transcriber"
+          element={
+            <VideoTranscriber
+              videoUrl={
+                "https://res.cloudinary.com/dbe3m3hcw/video/upload/v1758477119/report-videos/ybe0ahljvw1uizyqctlt.webm"
+              }
+            />
+          }
+        />
       </Routes>
-     
     </Router>
   );
 };

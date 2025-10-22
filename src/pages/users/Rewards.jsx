@@ -50,7 +50,7 @@ const Rewards = () => {
   ];
 
   return (
-    <div className="p-4 md:p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+    <div className="p-4 md:p-6 min-h-screen ">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Rewards & Recognition</h1>

@@ -10,9 +10,13 @@ const fetchUser = async () => {
   return data.user;
 };
 
+
+
+
 const ProtectedRoute = ({ children,allowed }) => {
+
   const setUser = useAuthStore((state) => state.setUser);
-  console.log(allowed)
+  console.log('role is',allowed)
   const { data: user, isLoading, isError } = useQuery({
     queryKey: ["authUser"],
     queryFn: fetchUser,

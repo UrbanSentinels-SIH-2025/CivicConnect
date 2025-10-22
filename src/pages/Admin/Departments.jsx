@@ -195,7 +195,7 @@ const Departments = () => {
 
   if (loading) {
     return (
-      <div className="p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 flex items-center justify-center">
+      <div className="p-6 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading departments...</p>
@@ -205,7 +205,7 @@ const Departments = () => {
   }
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+    <div className="p-6 min-h-screen ">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Department Management</h1>
